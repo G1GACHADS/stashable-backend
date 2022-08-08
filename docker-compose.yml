@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=storage_system
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - api-network
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - api-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_ADDRESS=redis:6379
+    volumes:
+      - .:/app
+    ports:
+      - 5000:5000
+    networks:
+      - api-network
+    depends_on:
+      - postgres
+      - redis
+
+networks:
+  api-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

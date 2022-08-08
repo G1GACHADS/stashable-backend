@@ -1,0 +1,19 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -ldflags=\"-s -w -extldflags \"-static\"\" -o ./.tmp/backend/api cmd/api/main.go"
+bin = ".tmp/backend"
+full_bin = "./.tmp/backend/api"
+delay = 1000
+
+log = "air_errors.log"
+
+include_ext = ["go", "mod", "yaml", "env"]
+exclude_dir = [".tmp"]
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = true
