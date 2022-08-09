@@ -4,13 +4,13 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"syscall"
 
 	"github.com/G1GACHADS/backend/internal/api"
 	"github.com/G1GACHADS/backend/internal/backend"
 	"github.com/G1GACHADS/backend/internal/clients"
 	"github.com/G1GACHADS/backend/internal/config"
 	"github.com/G1GACHADS/backend/internal/logger"
+	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,9 +23,9 @@ func main() {
 	// Wait for kill signals to gracefully shutdown the server
 	go func() {
 		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
+		signal.Notify(c, os.Interrupt)
 		<-c
+
 		cancel()
 	}()
 

@@ -1,6 +1,9 @@
 .env
 tmp
 .tmp
+testdata
+
+.vscode
 
 # Binaries for programs and plugins
 *.exe
