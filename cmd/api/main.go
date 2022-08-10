@@ -18,7 +18,6 @@ func main() {
 	logger.Init(true)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	// Wait for kill signals to gracefully shutdown the server
 	go func() {
