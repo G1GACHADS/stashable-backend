@@ -1,6 +1,6 @@
 # STEP 1 Build executable binary
 FROM golang:alpine as builder
-RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
+RUN apk update && apk add --no-cache git ca-certificates tzdata && update-ca-certificates
 
 ENV USER=appuser
 ENV UID=1000
@@ -23,6 +23,7 @@ RUN GOOS=linux GOARCH=amd64 go build -v -ldflags="-w -s" -o /app/backend ./cmd/a
 FROM alpine
 WORKDIR /app
 
+COPY --from=alpine /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
