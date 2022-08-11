@@ -4,10 +4,15 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
+type EnvTypes interface {
+	string | []string | int | time.Duration
+}
+
 // LookupEnv is a generic type implementation to search env keys
-func LookupEnv[T string | []string | int](name string, defaultValue T) T {
+func LookupEnv[T EnvTypes](name string, defaultValue T) T {
 	value, ok := os.LookupEnv(name)
 	if !ok {
 		return defaultValue
@@ -24,6 +29,11 @@ func LookupEnv[T string | []string | int](name string, defaultValue T) T {
 	case int:
 		i, _ := strconv.ParseInt(value, 10, 64)
 		result = int(i)
+	case time.Duration:
+		var err error
+		if result, err = time.ParseDuration(value); err != nil {
+			return defaultValue
+		}
 	}
 
 	return result.(T)

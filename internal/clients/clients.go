@@ -10,12 +10,12 @@ import (
 )
 
 type Clients struct {
-	Postgres *PostgreSQLConnection
-	Redis    *RedisClient
+	DB    *PostgreSQLConnection
+	Cache *RedisClient
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
-	group, ctx := errgroup.WithContext(ctx)
+	var group errgroup.Group
 
 	c := &Clients{}
 
@@ -29,7 +29,7 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 			cfg.Clients.PostgresPort,
 			cfg.Clients.PostgresDB)
 
-		c.Postgres, err = NewPostgreSQLClient(ctx, connString)
+		c.DB, err = NewPostgreSQLClient(ctx, connString)
 		if err != nil {
 			return err
 		}
@@ -40,7 +40,7 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 	group.Go(func() error {
 		var err error
 
-		c.Redis, err = NewRedisClient(ctx, &redis.Options{
+		c.Cache, err = NewRedisClient(ctx, &redis.Options{
 			Network:      "tcp",
 			Addr:         cfg.Clients.RedisAddress,
 			DB:           cfg.Clients.RedisDB,

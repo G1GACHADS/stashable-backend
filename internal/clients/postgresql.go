@@ -23,6 +23,10 @@ func NewPostgreSQLClient(ctx context.Context, connString string) (*PostgreSQLCon
 		return nil, err
 	}
 
+	if err := connection.Ping(ctx); err != nil {
+		return nil, err
+	}
+
 	return &PostgreSQLConnection{
 		ctx:        ctx,
 		connection: connection,

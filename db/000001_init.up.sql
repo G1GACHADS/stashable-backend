@@ -43,7 +43,7 @@ CREATE TABLE "addresses" (
     "province" varchar NOT NULL,
     "city" varchar NOT NULL,
     "street_name" varchar NOT NULL,
-    "zipcode" int NOT NULL
+    "zip_code" int NOT NULL
 );
 CREATE UNIQUE INDEX ON "warehouse_categories" ("category_id");
 COMMENT ON COLUMN "items"."weight" IS 'Use kg unit for now';

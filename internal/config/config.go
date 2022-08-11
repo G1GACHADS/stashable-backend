@@ -3,7 +3,9 @@ package config
 import "time"
 
 type AppConfig struct {
-	Address string
+	Address      string
+	JWTSecretKey string
+	JWTDuration  time.Duration
 }
 
 type ClientsConfig struct {
@@ -29,7 +31,10 @@ func New() *Config {
 	var c Config
 
 	c.App = AppConfig{
-		Address: LookupEnv("APP_ADDRESS", "127.0.0.1:5000"),
+		Address:      LookupEnv("APP_ADDRESS", "127.0.0.1:5000"),
+		JWTSecretKey: LookupEnv("JWT_SECRET_KEY", "secret"),
+		JWTDuration: LookupEnv("JWT_DURATION", time.Duration(
+			time.Now().Add(time.Hour*24*30).Unix())),
 	}
 
 	c.Clients = ClientsConfig{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/G1GACHADS/backend/internal/api"
 	"github.com/G1GACHADS/backend/internal/backend"
@@ -22,7 +23,7 @@ func main() {
 	// Wait for kill signals to gracefully shutdown the server
 	go func() {
 		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 		<-c
 
 		cancel()
@@ -34,7 +35,7 @@ func main() {
 		logger.M.Fatal(err.Error())
 	}
 
-	backend := backend.New(clients)
+	backend := backend.New(clients, config)
 	srv := api.NewServer(backend, config)
 
 	group, groupCtx := errgroup.WithContext(ctx)
@@ -45,6 +46,7 @@ func main() {
 
 	group.Go(func() error {
 		<-groupCtx.Done()
+		logger.M.Warn("Shutting down server")
 		return srv.Shutdown()
 	})
 

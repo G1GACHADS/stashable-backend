@@ -38,6 +38,12 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 		})
 	})
 
+	h := NewHandler(backend)
+
+	// Auth routes
+	app.Post("/auth/login", h.AuthenticateUser)
+	app.Post("/auth/register", h.RegisterUser)
+
 	return app
 }
 

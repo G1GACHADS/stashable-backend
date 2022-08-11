@@ -1,6 +1,9 @@
 package backend
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type User struct {
 	ID          int64  `json:"id"`
@@ -11,6 +14,10 @@ type User struct {
 	Password    string
 	CreatedAt   time.Time `json:"created_at"`
 }
+
+var (
+	ErrUserAlreadyExists = errors.New("user already exists")
+)
 
 type Warehouse struct {
 	ID          int64     `json:"id"`
