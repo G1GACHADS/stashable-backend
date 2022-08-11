@@ -3,7 +3,7 @@ package jwt
 import (
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func Generate(claims jwt.MapClaims, secretKey string) (string, error) {
