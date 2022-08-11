@@ -1,13 +1,19 @@
 package backend
 
 import (
+	"context"
+
 	"github.com/G1GACHADS/backend/internal/clients"
 	"github.com/G1GACHADS/backend/internal/config"
 )
 
 type Backend interface {
-	AuthenticateUser(email, password string) (string, error)
-	RegisterUser(user User, address Address) (string, error)
+	// Auth
+	AuthenticateUser(ctx context.Context, email, password string) (string, error)
+	RegisterUser(ctx context.Context, user User, address Address) (string, error)
+
+	// Profile
+	GetUserProfile(ctx context.Context, userID int64) (User, Address, error)
 }
 
 type backend struct {

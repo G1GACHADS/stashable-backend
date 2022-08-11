@@ -6,12 +6,13 @@ import (
 
 	"github.com/G1GACHADS/backend/internal/config"
 	"github.com/go-redis/redis/v8"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"golang.org/x/sync/errgroup"
 )
 
 type Clients struct {
-	DB    *PostgreSQLConnection
-	Cache *RedisClient
+	DB    *pgxpool.Pool
+	Cache *redis.Client
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Clients, error) {

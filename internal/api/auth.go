@@ -46,7 +46,7 @@ func (h *handler) AuthenticateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	accessToken, err := h.backend.AuthenticateUser(params.Email, params.Password)
+	accessToken, err := h.backend.AuthenticateUser(c.Context(), params.Email, params.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid email/password",
@@ -121,7 +121,7 @@ func (h *handler) RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
-	accessToken, err := h.backend.RegisterUser(
+	accessToken, err := h.backend.RegisterUser(c.Context(),
 		backend.User{
 			FullName:    params.FullName,
 			Email:       params.Email,

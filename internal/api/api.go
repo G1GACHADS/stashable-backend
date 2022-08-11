@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	"github.com/G1GACHADS/backend/internal/api/middleware"
 	"github.com/G1GACHADS/backend/internal/backend"
 	"github.com/G1GACHADS/backend/internal/config"
 	"github.com/gofiber/fiber/v2"
@@ -43,6 +44,8 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 	// Auth routes
 	app.Post("/auth/login", h.AuthenticateUser)
 	app.Post("/auth/register", h.RegisterUser)
+
+	app.Get("/profile", middleware.AuthenticatedMiddleware, h.GetUserProfile)
 
 	return app
 }

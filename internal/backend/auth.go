@@ -1,14 +1,18 @@
 package backend
 
 import (
+	"context"
+	"time"
+
 	"github.com/G1GACHADS/backend/internal/token/jwt"
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (b backend) AuthenticateUser(email, password string) (string, error) {
+func (b backend) AuthenticateUser(ctx context.Context, email, password string) (string, error) {
 	var user User
 
-	err := b.clients.DB.QueryRow("SELECT id, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password)
+	err := b.clients.DB.QueryRow(ctx, "SELECT id, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password)
 	if err != nil {
 		return "", err
 	}
@@ -19,7 +23,7 @@ func (b backend) AuthenticateUser(email, password string) (string, error) {
 
 	accessToken, err := jwt.Generate(map[string]any{
 		"userID": user.ID,
-		"exp":    b.cfg.App.JWTDuration,
+		"exp":    time.Now().Add(b.cfg.App.JWTDuration),
 		"email":  user.Email,
 	}, b.cfg.App.JWTSecretKey)
 	if err != nil {
@@ -29,15 +33,15 @@ func (b backend) AuthenticateUser(email, password string) (string, error) {
 	return accessToken, nil
 }
 
-func (b backend) RegisterUser(user User, address Address) (string, error) {
-	tx, err := b.clients.DB.BeginTx()
+func (b backend) RegisterUser(ctx context.Context, user User, address Address) (string, error) {
+	tx, err := b.clients.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return "", err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	var addressID int64
-	err = tx.QueryRow("INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
+	err = tx.QueryRow(ctx, "INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
 		address.Province, address.City, address.StreetName, address.ZipCode).
 		Scan(&addressID)
 	if err != nil {
@@ -50,7 +54,7 @@ func (b backend) RegisterUser(user User, address Address) (string, error) {
 	}
 
 	var alreadyExists bool
-	err = tx.QueryRow(`
+	err = tx.QueryRow(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM users
 		WHERE email = $1
@@ -65,13 +69,13 @@ func (b backend) RegisterUser(user User, address Address) (string, error) {
 	}
 
 	var userID int64
-	err = tx.QueryRow("INSERT INTO users (address_id, full_name, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, $5, now()) RETURNING id",
+	err = tx.QueryRow(ctx, "INSERT INTO users (address_id, full_name, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, $5, now()) RETURNING id",
 		addressID, user.FullName, user.Email, user.PhoneNumber, hash).Scan(&userID)
 	if err != nil {
 		return "", err
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return "", err
 	}
 

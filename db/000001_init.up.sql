@@ -8,6 +8,7 @@ CREATE TABLE "users" (
     "password" text NOT NULL,
     "created_at" timestamp(0) without time zone NOT NULL
 );
+CREATE UNIQUE INDEX ON "users" ("email", "phone_number");
 CREATE TABLE "warehouses" (
     "id" BIGSERIAL PRIMARY KEY,
     "address_id" bigint NOT NULL,
