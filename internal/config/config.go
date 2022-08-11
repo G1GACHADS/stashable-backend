@@ -47,8 +47,8 @@ func New() *Config {
 		RedisAddress:      LookupEnv("REDIS_ADDRESS", "redis://127.0.0.1:6379"),
 		RedisPassword:     LookupEnv("REDIS_PASSWORD", ""),
 		RedisDB:           LookupEnv("REDIS_DB", 0),
-		RedisWriteTimeout: time.Duration(LookupEnv("REDIS_WRITE_TIMEOUT", 0)) * time.Second,
-		RedisReadTimeout:  time.Duration(LookupEnv("REDIS_READ_TIMEOUT", 0)) * time.Second,
+		RedisWriteTimeout: LookupEnv("REDIS_WRITE_TIMEOUT", time.Second),
+		RedisReadTimeout:  LookupEnv("REDIS_READ_TIMEOUT", time.Second),
 	}
 
 	return &c
