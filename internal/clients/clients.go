@@ -22,7 +22,7 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 	group.Go(func() error {
 		var err error
 
-		connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+		connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 			cfg.Clients.PostgresUser,
 			cfg.Clients.PostgresPassword,
 			cfg.Clients.PostgresHost,
