@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strings"
 	"time"
 
 	"github.com/G1GACHADS/backend/internal/api/middleware"
@@ -23,6 +24,7 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
+		AllowMethods: strings.Join([]string{fiber.MethodGet, fiber.MethodPost, fiber.MethodHead}, ","),
 		AllowHeaders: fiber.HeaderAuthorization,
 	}))
 
