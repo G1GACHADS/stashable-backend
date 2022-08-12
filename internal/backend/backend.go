@@ -23,6 +23,8 @@ type Backend interface {
 	// Warehouses
 	ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error)
 	ListWarehousesFromCache(ctx context.Context) ([]ListWarehousesOutput, error)
+	GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
+	GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
 	SearchWarehouse(ctx context.Context, filter SearchWarehouseFilter, query string) ([]Warehouse, error)
 	CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error
 	DeleteWarehouse(ctx context.Context, warehouseID int64) error

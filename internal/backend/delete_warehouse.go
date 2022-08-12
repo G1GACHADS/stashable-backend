@@ -3,6 +3,7 @@ package backend
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/G1GACHADS/backend/internal/logger"
 	"github.com/jackc/pgx/v4"
@@ -28,6 +29,11 @@ func (b backend) DeleteWarehouse(ctx context.Context, warehouseID int64) error {
 	// Clear the cache
 	go func(ctx context.Context) {
 		_, err := b.clients.Cache.Del(ctx, "warehouses").Result()
+		if err != nil {
+			logger.M.Warnf("Couldn't refresh warehouses cache: %v", err)
+		}
+
+		_, err = b.clients.Cache.Del(ctx, fmt.Sprintf("warehouses::%d", warehouseID)).Result()
 		if err != nil {
 			logger.M.Warnf("Couldn't refresh warehouses cache: %v", err)
 		}
