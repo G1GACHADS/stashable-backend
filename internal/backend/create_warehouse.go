@@ -26,31 +26,7 @@ func (b backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput
 		return err
 	}
 
-	var addressID int64
-	err = tx.QueryRow(ctx, "INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
-		input.Address.Province,
-		input.Address.City,
-		input.Address.StreetName,
-		input.Address.ZipCode).Scan(&addressID)
-	if err != nil {
-		return err
-	}
-
-	var warehouseID int64
-	err = tx.QueryRow(ctx, `
-	INSERT INTO warehouses
-		(address_id, name, image_url, description, base_price, email, phone_number, created_at)
-	VALUES
-		($1, $2, $3, $4, $5, $6, $7, now())
-	RETURNING id
-	`,
-		addressID,
-		input.Warehouse.Name,
-		input.Warehouse.ImageURL,
-		input.Warehouse.Description,
-		input.Warehouse.BasePrice,
-		input.Warehouse.Email,
-		input.Warehouse.PhoneNumber).Scan(&warehouseID)
+	warehouseID, err := b.insertAddressAndWarehouse(ctx, tx, input)
 	if err != nil {
 		return err
 	}
@@ -89,6 +65,39 @@ func (b backend) checkIfCategoryIDsExists(ctx context.Context, tx pgx.Tx, ids []
 	}
 
 	return nil
+}
+
+func (b backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input CreateWarehouseInput) (int64, error) {
+	var addressID int64
+	err := tx.QueryRow(ctx, "INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
+		input.Address.Province,
+		input.Address.City,
+		input.Address.StreetName,
+		input.Address.ZipCode).Scan(&addressID)
+	if err != nil {
+		return 0, err
+	}
+
+	var warehouseID int64
+	err = tx.QueryRow(ctx, `
+	INSERT INTO warehouses
+		(address_id, name, image_url, description, base_price, email, phone_number, created_at)
+	VALUES
+		($1, $2, $3, $4, $5, $6, $7, now())
+	RETURNING id
+	`,
+		addressID,
+		input.Warehouse.Name,
+		input.Warehouse.ImageURL,
+		input.Warehouse.Description,
+		input.Warehouse.BasePrice,
+		input.Warehouse.Email,
+		input.Warehouse.PhoneNumber).Scan(&warehouseID)
+	if err != nil {
+		return 0, err
+	}
+
+	return warehouseID, nil
 }
 
 func (b backend) bulkInsertWarehouseCategories(ctx context.Context, tx pgx.Tx, warehouseID int64, categoriesID []int64) error {
