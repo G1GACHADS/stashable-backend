@@ -31,6 +31,10 @@ type Warehouse struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+var (
+	ErrWarehouseDoesNotExists  = errors.New("warehouse does not exists")
+)
+
 type Item struct {
 	ID          int64     `json:"id"`
 	UserID      int64     `json:"user_id"`
@@ -51,7 +55,7 @@ type Category struct {
 }
 
 var (
-	ErrCategoryDoesNotExists = errors.New("user already exists")
+	ErrCategoryDoesNotExists = errors.New("category does not exists")
 )
 
 type Address struct {

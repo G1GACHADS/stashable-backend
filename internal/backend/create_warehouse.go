@@ -36,6 +36,7 @@ func (b backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput
 		return err
 	}
 
+	// Clear the cache
 	go func(ctx context.Context) {
 		_, err := b.clients.Cache.Del(ctx, "warehouses").Result()
 		if err != nil {
