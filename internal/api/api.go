@@ -15,7 +15,7 @@ import (
 
 func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 	app := fiber.New(fiber.Config{
-		AppName:      "storage_system_http_server",
+		AppName:      "stashable_http_server",
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 		JSONEncoder:  sonic.Marshal,
