@@ -58,16 +58,16 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 		warehouses = append(warehouses, row)
 	}
 
-	if exists, _ := b.clients.Cache.Exists(ctx, "warehouses").Result(); exists != 1 {
-		// Cache the warehouses for future use
-		go func(warehouses []ListWarehousesOutput) {
+	go func(warehouses []ListWarehousesOutput) {
+		if exists, _ := b.clients.Cache.Exists(ctx, "warehouses").Result(); exists != 1 {
+			// Cache the warehouses for future use
 			out, _ := sonic.Marshal(warehouses)
 			_, err := b.clients.Cache.Set(ctx, "warehouses", out, 0).Result()
 			if err != nil {
 				logger.M.Warnf("failed to cache warehouses: %v", err)
 			}
-		}(warehouses)
-	}
+		}
+	}(warehouses)
 
 	return warehouses, nil
 }
