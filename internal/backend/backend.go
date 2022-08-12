@@ -14,6 +14,11 @@ type Backend interface {
 
 	// Profile
 	GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error)
+	GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error)
+
+	// Warehouses
+	ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error)
+	ListWarehousesFromCache(ctx context.Context) ([]ListWarehousesOutput, error)
 }
 
 type backend struct {

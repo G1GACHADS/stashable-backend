@@ -6,6 +6,7 @@ import (
 	"github.com/G1GACHADS/backend/internal/api/middleware"
 	"github.com/G1GACHADS/backend/internal/backend"
 	"github.com/G1GACHADS/backend/internal/config"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/helmet/v2"
@@ -16,6 +17,8 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 		AppName:      "storage_system_http_server",
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
+		JSONEncoder:  sonic.Marshal,
+		JSONDecoder:  sonic.Unmarshal,
 	})
 
 	app.Use(cors.New(cors.Config{
@@ -46,6 +49,9 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 	app.Post("/auth/register", h.RegisterUser)
 
 	app.Get("/profile", middleware.AuthenticatedMiddleware, h.GetUserProfile)
+
+	// Warehouse routes
+	app.Get("/warehouses", h.ListWarehouses)
 
 	return app
 }
