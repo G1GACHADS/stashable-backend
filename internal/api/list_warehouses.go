@@ -1,20 +1,25 @@
 package api
 
 import (
-	"github.com/G1GACHADS/backend/internal/backend"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func (h *handler) ListWarehouses(c *fiber.Ctx) error {
-	warehouses, _ := h.backend.ListWarehousesFromCache(c.Context())
-	if len(warehouses) != 0 {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"total_items": len(warehouses),
-			"items":       warehouses,
+	limit, err := strconv.Atoi(c.Query("limit", "20"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Please provide a valid limit",
 		})
 	}
 
-	warehouses, err := h.backend.ListWarehouses(c.Context())
+	cachedWarehouses, _ := h.backend.ListWarehousesFromCache(c.Context(), limit)
+	if cachedWarehouses.TotalItems != 0 {
+		return c.Status(fiber.StatusOK).JSON(cachedWarehouses)
+	}
+
+	warehouses, err := h.backend.ListWarehouses(c.Context(), limit)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "There was a problem on our side",
@@ -22,13 +27,5 @@ func (h *handler) ListWarehouses(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(warehouses) == 0 {
-		// render an empty array instead of null
-		warehouses = []backend.ListWarehousesOutput{}
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"total_items": len(warehouses),
-		"items":       warehouses,
-	})
+	return c.Status(fiber.StatusOK).JSON(warehouses)
 }

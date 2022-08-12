@@ -21,8 +21,8 @@ type Backend interface {
 	DeleteCategory(ctx context.Context, categoryID int64) error
 
 	// Warehouses
-	ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error)
-	ListWarehousesFromCache(ctx context.Context) ([]ListWarehousesOutput, error)
+	ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error)
+	ListWarehousesFromCache(ctx context.Context, limit int) (ListWarehousesOutput, error)
 	GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
 	GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
 	SearchWarehouse(ctx context.Context, filter SearchWarehouseFilter, query string) ([]Warehouse, error)

@@ -2,12 +2,14 @@ package backend
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/G1GACHADS/backend/internal/logger"
 	"github.com/bytedance/sonic"
 )
 
-type ListWarehousesOutput struct {
+type ListWarehousesItem struct {
 	Attributes    Warehouse `json:"attributes"`
 	Relationships struct {
 		Address    Address  `json:"address"`
@@ -15,10 +17,17 @@ type ListWarehousesOutput struct {
 	} `json:"relationships"`
 }
 
-func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error) {
+type ListWarehousesOutput struct {
+	TotalItems int                  `json:"total_items"`
+	Items      []ListWarehousesItem `json:"items"`
+}
+
+func (b backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error) {
 	query := `
 	SELECT
+		(SELECT count(id) FROM warehouses),
 		warehouses.id,
+		warehouses.address_id,
 		warehouses.name,
 		warehouses.image_url,
 		warehouses.description,
@@ -37,19 +46,24 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 	GROUP BY
 		warehouses.id,
 		addresses.id
+	LIMIT $1
 	`
 
-	var warehouses []ListWarehousesOutput
+	var warehouses []ListWarehousesItem
 
-	rows, err := b.clients.DB.Query(ctx, query)
+	rows, err := b.clients.DB.Query(ctx, query, limit)
 	if err != nil {
-		return nil, err
+		return ListWarehousesOutput{}, err
 	}
 
+	var count int
+
 	for rows.Next() {
-		var row ListWarehousesOutput
+		var row ListWarehousesItem
 		err := rows.Scan(
+			&count,
 			&row.Attributes.ID,
+			&row.Attributes.AddressID,
 			&row.Attributes.Name,
 			&row.Attributes.ImageURL,
 			&row.Attributes.Description,
@@ -63,29 +77,36 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 			&row.Relationships.Categories,
 		)
 		if err != nil {
-			return nil, err
+			return ListWarehousesOutput{}, err
 		}
 		warehouses = append(warehouses, row)
 	}
 
-	go func(warehouses []ListWarehousesOutput) {
-		if exists, _ := b.clients.Cache.Exists(ctx, "warehouses").Result(); exists != 1 {
+	out := ListWarehousesOutput{
+		TotalItems: count,
+		Items:      warehouses,
+	}
+
+	go func(warehouses ListWarehousesOutput) {
+		cacheKey := fmt.Sprintf("warehouses.limit(%d)", limit)
+		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
 			// Cache the warehouses for future use
 			out, _ := sonic.Marshal(warehouses)
-			_, err := b.clients.Cache.Set(ctx, "warehouses", out, 0).Result()
+			_, err := b.clients.Cache.Set(ctx, cacheKey, out, 5*time.Minute).Result()
 			if err != nil {
 				logger.M.Warnf("failed to cache warehouses: %v", err)
 			}
 		}
-	}(warehouses)
+	}(out)
 
-	return warehouses, nil
+	return out, nil
 }
 
-func (b backend) ListWarehousesFromCache(ctx context.Context) ([]ListWarehousesOutput, error) {
-	var warehouses []ListWarehousesOutput
-	if exists, _ := b.clients.Cache.Exists(ctx, "warehouses").Result(); exists == 1 {
-		out, _ := b.clients.Cache.Get(ctx, "warehouses").Result()
+func (b backend) ListWarehousesFromCache(ctx context.Context, limit int) (ListWarehousesOutput, error) {
+	var warehouses ListWarehousesOutput
+	cacheKey := fmt.Sprintf("warehouses.limit(%d)", limit)
+	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
+		out, _ := b.clients.Cache.Get(ctx, cacheKey).Result()
 		sonic.Unmarshal([]byte(out), &warehouses)
 	}
 	return warehouses, nil
