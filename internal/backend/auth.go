@@ -23,7 +23,7 @@ func (b backend) AuthenticateUser(ctx context.Context, email, password string) (
 
 	accessToken, err := jwt.Generate(map[string]any{
 		"userID": user.ID,
-		"exp":    time.Now().Add(b.cfg.App.JWTDuration),
+		"exp":    time.Now().Add(b.cfg.App.JWTDuration).Unix(),
 		"email":  user.Email,
 	}, b.cfg.App.JWTSecretKey)
 	if err != nil {
@@ -81,7 +81,7 @@ func (b backend) RegisterUser(ctx context.Context, user User, address Address) (
 
 	accessToken, err := jwt.Generate(map[string]any{
 		"userID": userID,
-		"exp":    b.cfg.App.JWTDuration,
+		"exp":    time.Now().Add(b.cfg.App.JWTDuration).Unix(),
 		"email":  user.Email,
 	}, b.cfg.App.JWTSecretKey)
 	if err != nil {
