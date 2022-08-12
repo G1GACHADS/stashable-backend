@@ -10,8 +10,10 @@ import (
 )
 
 type GetUserProfileOutput struct {
-	User    User
-	Address Address
+	Attributes    User `json:"attributes"`
+	Relationships struct {
+		Address `json:"address"`
+	} `json:"relationships"`
 }
 
 func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
@@ -35,17 +37,17 @@ func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfi
 	WHERE users.id = $1`
 
 	err := b.clients.DB.QueryRow(ctx, query, userID).Scan(
-		&out.User.ID,
-		&out.User.AddressID,
-		&out.User.FullName,
-		&out.User.Email,
-		&out.User.PhoneNumber,
-		&out.User.CreatedAt,
-		&out.Address.ID,
-		&out.Address.Province,
-		&out.Address.City,
-		&out.Address.StreetName,
-		&out.Address.ZipCode,
+		&out.Attributes.ID,
+		&out.Attributes.AddressID,
+		&out.Attributes.FullName,
+		&out.Attributes.Email,
+		&out.Attributes.PhoneNumber,
+		&out.Attributes.CreatedAt,
+		&out.Relationships.Address.ID,
+		&out.Relationships.Address.Province,
+		&out.Relationships.Address.City,
+		&out.Relationships.Address.StreetName,
+		&out.Relationships.Address.ZipCode,
 	)
 	if err != nil {
 		return GetUserProfileOutput{}, err
@@ -53,14 +55,14 @@ func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfi
 
 	// Cache the profile for future use
 	go func(profile GetUserProfileOutput) {
-		cacheKey := fmt.Sprintf("profile::%d", out.User.ID)
+		cacheKey := fmt.Sprintf("profile::%d", out.Attributes.ID)
 		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
 			out, _ := sonic.Marshal(profile)
-			_, err := b.clients.Cache.Set(ctx, fmt.Sprintf("profile::%d", profile.User.ID), out, time.Hour).Result()
+			_, err := b.clients.Cache.Set(ctx, fmt.Sprintf("profile::%d", profile.Attributes.ID), out, time.Hour).Result()
 			if err != nil {
 				logger.M.Warnf("failed to cache profile: %v", err)
 			}
-			logger.M.Debugf("cached profile for user %d", profile.User.ID)
+			logger.M.Debugf("cached profile for user %d", profile.Attributes.ID)
 		}
 	}(out)
 
