@@ -8,9 +8,11 @@ import (
 )
 
 type ListWarehousesOutput struct {
-	Warehouse  Warehouse `json:"warehouse"`
-	Address    Address   `json:"warehouse_address"`
-	Categories []string  `json:"categories"`
+	Attributes    Warehouse `json:"attributes"`
+	Relationships struct {
+		Address    Address  `json:"address"`
+		Categories []string `json:"categories"`
+	} `json:"relationships"`
 }
 
 func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error) {
@@ -47,18 +49,18 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 	for rows.Next() {
 		var row ListWarehousesOutput
 		err := rows.Scan(
-			&row.Warehouse.ID,
-			&row.Warehouse.Name,
-			&row.Warehouse.ImageURL,
-			&row.Warehouse.Description,
-			&row.Warehouse.BasePrice,
-			&row.Warehouse.CreatedAt,
-			&row.Address.ID,
-			&row.Address.Province,
-			&row.Address.City,
-			&row.Address.StreetName,
-			&row.Address.ZipCode,
-			&row.Categories,
+			&row.Attributes.ID,
+			&row.Attributes.Name,
+			&row.Attributes.ImageURL,
+			&row.Attributes.Description,
+			&row.Attributes.BasePrice,
+			&row.Attributes.CreatedAt,
+			&row.Relationships.Address.ID,
+			&row.Relationships.Address.Province,
+			&row.Relationships.Address.City,
+			&row.Relationships.Address.StreetName,
+			&row.Relationships.Address.ZipCode,
+			&row.Relationships.Categories,
 		)
 		if err != nil {
 			return nil, err
