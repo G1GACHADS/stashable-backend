@@ -50,6 +50,10 @@ type Category struct {
 	Name string `json:"name"`
 }
 
+var (
+	ErrCategoryDoesNotExists = errors.New("user already exists")
+)
+
 type Address struct {
 	ID         int64  `json:"id"`
 	Province   string `json:"province"`

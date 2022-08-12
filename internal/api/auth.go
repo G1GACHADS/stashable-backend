@@ -14,12 +14,11 @@ type AuthenticateUserParams struct {
 }
 
 func (p AuthenticateUserParams) Validate() error {
-	if p.Email == "" {
-		return errors.New("email is required")
-	}
-
-	if p.Password == "" {
-		return errors.New("password is required")
+	if err := requiredFields(map[string]any{
+		"email":    p.Email,
+		"password": p.Password,
+	}); err != nil {
+		return err
 	}
 
 	if _, err := mail.ParseAddress(p.Email); err != nil {
@@ -71,40 +70,20 @@ type RegisterUserParams struct {
 }
 
 func (p RegisterUserParams) Validate() error {
-	if p.FullName == "" {
-		return errors.New("full_name is required")
-	}
-
-	if p.Email == "" {
-		return errors.New("email is required")
+	if err := requiredFields(map[string]any{
+		"full_name":    p.FullName,
+		"email":        p.Email,
+		"phone_number": p.PhoneNumber,
+		"province":     p.Province,
+		"city":         p.City,
+		"street_name":  p.StreetName,
+		"zip_code":     p.ZipCode,
+	}); err != nil {
+		return err
 	}
 
 	if _, err := mail.ParseAddress(p.Email); err != nil {
 		return errors.New("invalid email address")
-	}
-
-	if p.PhoneNumber == "" {
-		return errors.New("phone_number is required")
-	}
-
-	if p.Password == "" {
-		return errors.New("password is required")
-	}
-
-	if p.Province == "" {
-		return errors.New("province is required")
-	}
-
-	if p.City == "" {
-		return errors.New("city is required")
-	}
-
-	if p.StreetName == "" {
-		return errors.New("street_name is required")
-	}
-
-	if p.ZipCode == 0 {
-		return errors.New("zip_code is required")
 	}
 
 	return nil

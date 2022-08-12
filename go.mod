@@ -13,6 +13,7 @@ require (
 	github.com/mattn/go-colorable v0.1.12
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 

@@ -17,7 +17,7 @@ type Backend interface {
 	GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error)
 
 	// Categories
-	CreateCategory(ctx context.Context, name string) error
+	CreateCategory(ctx context.Context, name string) (Category, error)
 	DeleteCategory(ctx context.Context, categoryID int64) error
 
 	// Warehouses

@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/G1GACHADS/backend/internal/config"
 	"github.com/go-redis/redis/v8"
@@ -23,14 +24,14 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 	group.Go(func() error {
 		var err error
 
-		connString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-			cfg.Clients.PostgresUser,
-			cfg.Clients.PostgresPassword,
-			cfg.Clients.PostgresHost,
-			cfg.Clients.PostgresPort,
-			cfg.Clients.PostgresDB)
+		connString := url.URL{
+			Scheme: "postgres",
+			Host:   fmt.Sprintf("%s:%d", cfg.Clients.PostgresHost, cfg.Clients.PostgresPort),
+			User:   url.UserPassword(cfg.Clients.PostgresUser, cfg.Clients.PostgresPassword),
+			Path:   cfg.Clients.PostgresDB,
+		}
 
-		c.DB, err = NewPostgreSQLClient(ctx, connString)
+		c.DB, err = NewPostgreSQLClient(ctx, connString.String())
 		if err != nil {
 			return err
 		}
