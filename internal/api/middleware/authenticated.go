@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AuthenticatedMiddleware(c *fiber.Ctx) error {
+func Authenticated(c *fiber.Ctx) error {
 	authorization := c.Get("Authorization")
 	if len(strings.Split(authorization, " ")) < 2 {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

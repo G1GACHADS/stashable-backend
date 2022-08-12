@@ -51,15 +51,15 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 	app.Post("/auth/register", h.RegisterUser)
 
 	// profile
-	app.Get("/profile", middleware.AuthenticatedMiddleware, h.GetUserProfile)
+	app.Get("/profile", middleware.Authenticated, h.GetUserProfile)
 
 	// Categories
-	app.Post("/categories", middleware.AuthenticatedMiddleware, h.CreateCategory)
-	app.Delete("/categories/:id", middleware.AuthenticatedMiddleware, h.DeleteCategory)
+	app.Post("/categories", middleware.Authenticated, h.CreateCategory)
+	app.Delete("/categories/:id", middleware.Authenticated, h.DeleteCategory)
 
 	// Warehouse routes
 	app.Get("/warehouses", h.ListWarehouses)
-	app.Post("/warehouses", middleware.AuthenticatedMiddleware, h.CreateWarehouse)
+	app.Post("/warehouses", middleware.Authenticated, h.CreateWarehouse)
 
 	return app
 }
