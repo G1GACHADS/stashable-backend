@@ -8,8 +8,9 @@ import (
 )
 
 type ListWarehousesOutput struct {
-	Warehouse Warehouse `json:"warehouse"`
-	Address   Address   `json:"warehouse_address"`
+	Warehouse  Warehouse `json:"warehouse"`
+	Address    Address   `json:"warehouse_address"`
+	Categories []string  `json:"categories"`
 }
 
 func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, error) {
@@ -25,9 +26,15 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 		addresses.province,
 		addresses.city,
 		addresses.street_name,
-		addresses.zip_code
+		addresses.zip_code,
+		array_agg(categories.name)
 	FROM warehouses
 	LEFT JOIN addresses ON warehouses.address_id = addresses.id
+	LEFT JOIN warehouse_categories as wc ON warehouses.id = wc.warehouse_id
+	LEFT JOIN categories ON wc.category_id = categories.id
+	GROUP BY
+		warehouses.id,
+		addresses.id
 	`
 
 	var warehouses []ListWarehousesOutput
@@ -51,6 +58,7 @@ func (b backend) ListWarehouses(ctx context.Context) ([]ListWarehousesOutput, er
 			&row.Address.City,
 			&row.Address.StreetName,
 			&row.Address.ZipCode,
+			&row.Categories,
 		)
 		if err != nil {
 			return nil, err

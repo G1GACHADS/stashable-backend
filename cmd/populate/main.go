@@ -79,11 +79,15 @@ func main() {
 
 	b := backend.New(clients, config)
 
+	// b.CreateCategory(ctx, "Chemical")
+	// b.CreateCategory(ctx, "Electric Components")
+	// b.CreateCategory(ctx, "Fragile / Glass")
+	// b.CreateCategory(ctx, "Heavy Materials")
+
 	minBasePrice := float64(200000)
 	maxBasePrice := float64(25000000)
 
 	limiter := NewLimiter(8)
-	defer limiter.Wait()
 	for i := 0; i < n; i++ {
 		started := limiter.Go(ctx, func() {
 			err := b.CreateWarehouse(ctx, backend.CreateWarehouseInput{
@@ -101,6 +105,7 @@ func main() {
 					StreetName: faker.Sentence(),
 					ZipCode:    rand.Intn(180000-170000) + 170000,
 				},
+				CategoryIDs: []int64{1, 2, 3, 4},
 			})
 			if err != nil {
 				logger.M.Warnf("Worker-#%d: failed inserting\nreason:%v", i, err)
@@ -112,5 +117,6 @@ func main() {
 		}
 	}
 
+	limiter.Wait()
 	logger.M.Info("Database populate process finished!")
 }

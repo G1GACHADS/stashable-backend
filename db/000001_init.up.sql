@@ -21,9 +21,9 @@ CREATE TABLE "warehouses" (
     "created_at" timestamp(0) without time zone NOT NULL
 );
 CREATE TABLE "warehouse_categories" (
+    "id" BIGSERIAL PRIMARY KEY,
     "warehouse_id" bigint NOT NULL,
-    "category_id" bigint NOT NULL,
-    PRIMARY KEY ("warehouse_id", "category_id")
+    "category_id" bigint NOT NULL
 );
 CREATE TABLE "items" (
     "id" BIGSERIAL PRIMARY KEY,
@@ -46,7 +46,6 @@ CREATE TABLE "addresses" (
     "street_name" varchar NOT NULL,
     "zip_code" int NOT NULL
 );
-CREATE UNIQUE INDEX ON "warehouse_categories" ("category_id");
 COMMENT ON COLUMN "items"."weight" IS 'Use kg unit for now';
 COMMENT ON COLUMN "items"."width" IS 'Use cm unit for now';
 COMMENT ON COLUMN "items"."height" IS 'Use cm unit for now';
