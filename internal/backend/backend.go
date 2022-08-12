@@ -13,7 +13,7 @@ type Backend interface {
 	RegisterUser(ctx context.Context, user User, address Address) (string, error)
 
 	// Profile
-	GetUserProfile(ctx context.Context, userID int64) (User, Address, error)
+	GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error)
 }
 
 type backend struct {

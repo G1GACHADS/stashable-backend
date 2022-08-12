@@ -4,7 +4,12 @@ import (
 	"context"
 )
 
-func (b backend) GetUserProfile(ctx context.Context, userID int64) (User, Address, error) {
+type GetUserProfileOutput struct {
+	User User
+	Address Address
+}
+
+func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
 	var user User
 	var userAddress Address
 
@@ -37,8 +42,8 @@ func (b backend) GetUserProfile(ctx context.Context, userID int64) (User, Addres
 		&userAddress.ZipCode,
 	)
 	if err != nil {
-		return User{}, Address{}, err
+		return GetUserProfileOutput{}, err
 	}
 
-	return user, userAddress, nil
+	return GetUserProfileOutput{User: user, Address: userAddress}, nil
 }
