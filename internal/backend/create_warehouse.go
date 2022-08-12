@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/G1GACHADS/backend/internal/logger"
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 )
@@ -58,6 +59,13 @@ func (b backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput
 	if err != nil {
 		return err
 	}
+
+	go func(ctx context.Context) {
+		_, err := b.clients.Cache.Del(ctx, "warehouses").Result()
+		if err != nil {
+			logger.M.Warnf("Couldn't refresh warehouses cache: %v", err)
+		}
+	}(ctx)
 
 	return tx.Commit(ctx)
 }
