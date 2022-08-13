@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 if [ -z "$1" ]; then
     echo "Missing name of migration"
