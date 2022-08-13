@@ -2,11 +2,6 @@ package backend
 
 import (
 	"context"
-	"fmt"
-	"time"
-
-	"github.com/G1GACHADS/backend/internal/logger"
-	"github.com/bytedance/sonic"
 )
 
 type ListWarehousesItem struct {
@@ -82,32 +77,8 @@ func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehouses
 		warehouses = append(warehouses, row)
 	}
 
-	out := ListWarehousesOutput{
+	return ListWarehousesOutput{
 		TotalItems: count,
 		Items:      warehouses,
-	}
-
-	go func(warehouses ListWarehousesOutput) {
-		cacheKey := fmt.Sprintf("warehouses.limit(%d)", limit)
-		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
-			// Cache the warehouses for future use
-			out, _ := sonic.Marshal(warehouses)
-			_, err := b.clients.Cache.Set(ctx, cacheKey, out, 5*time.Minute).Result()
-			if err != nil {
-				logger.M.Warnf("failed to cache warehouses: %v", err)
-			}
-		}
-	}(out)
-
-	return out, nil
-}
-
-func (b *backend) ListWarehousesFromCache(ctx context.Context, limit int) (ListWarehousesOutput, error) {
-	var warehouses ListWarehousesOutput
-	cacheKey := fmt.Sprintf("warehouses.limit(%d)", limit)
-	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
-		out, _ := b.clients.Cache.Get(ctx, cacheKey).Result()
-		sonic.Unmarshal([]byte(out), &warehouses)
-	}
-	return warehouses, nil
+	}, nil
 }

@@ -14,11 +14,6 @@ func (h *handler) ListWarehouses(c *fiber.Ctx) error {
 		})
 	}
 
-	cachedWarehouses, _ := h.backend.ListWarehousesFromCache(c.Context(), limit)
-	if cachedWarehouses.TotalItems != 0 {
-		return c.Status(fiber.StatusOK).JSON(cachedWarehouses)
-	}
-
 	warehouses, err := h.backend.ListWarehouses(c.Context(), limit)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
