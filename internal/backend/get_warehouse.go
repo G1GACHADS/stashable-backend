@@ -18,7 +18,7 @@ type GetWarehouseOutput struct {
 	} `json:"relationships"`
 }
 
-func (b backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
+func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
 	query := `
 	SELECT
 		warehouses.id,
@@ -81,7 +81,7 @@ func (b backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareho
 	return warehouse, nil
 }
 
-func (b backend) GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
+func (b *backend) GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
 	var warehouse GetWarehouseOutput
 	cacheKey := fmt.Sprintf("warehouses::%d", warehouseID)
 	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {

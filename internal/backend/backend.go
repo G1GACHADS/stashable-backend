@@ -39,5 +39,5 @@ type backend struct {
 }
 
 func New(clients *clients.Clients, cfg *config.Config) Backend {
-	return backend{clients: clients, cfg: cfg}
+	return &backend{clients: clients, cfg: cfg}
 }

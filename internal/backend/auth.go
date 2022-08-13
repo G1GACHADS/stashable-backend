@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (b backend) AuthenticateUser(ctx context.Context, email, password string) (string, error) {
+func (b *backend) AuthenticateUser(ctx context.Context, email, password string) (string, error) {
 	var user User
 
 	err := b.clients.DB.QueryRow(ctx, "SELECT id, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password)
@@ -33,7 +33,7 @@ func (b backend) AuthenticateUser(ctx context.Context, email, password string) (
 	return accessToken, nil
 }
 
-func (b backend) RegisterUser(ctx context.Context, user User, address Address) (string, error) {
+func (b *backend) RegisterUser(ctx context.Context, user User, address Address) (string, error) {
 	tx, err := b.clients.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return "", err

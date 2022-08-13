@@ -15,7 +15,7 @@ type CreateWarehouseInput struct {
 	CategoryIDs []int64
 }
 
-func (b backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error {
+func (b *backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error {
 	tx, err := b.clients.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -47,7 +47,7 @@ func (b backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput
 	return tx.Commit(ctx)
 }
 
-func (b backend) checkIfCategoryIDsExists(ctx context.Context, tx pgx.Tx, ids []int64) error {
+func (b *backend) checkIfCategoryIDsExists(ctx context.Context, tx pgx.Tx, ids []int64) error {
 	var categoryCount int
 
 	pgIds := &pgtype.Int8Array{}
@@ -68,7 +68,7 @@ func (b backend) checkIfCategoryIDsExists(ctx context.Context, tx pgx.Tx, ids []
 	return nil
 }
 
-func (b backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input CreateWarehouseInput) (int64, error) {
+func (b *backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input CreateWarehouseInput) (int64, error) {
 	var addressID int64
 	err := tx.QueryRow(ctx, "INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
 		input.Address.Province,
@@ -101,7 +101,7 @@ func (b backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input
 	return warehouseID, nil
 }
 
-func (b backend) bulkInsertWarehouseCategories(ctx context.Context, tx pgx.Tx, warehouseID int64, categoriesID []int64) error {
+func (b *backend) bulkInsertWarehouseCategories(ctx context.Context, tx pgx.Tx, warehouseID int64, categoriesID []int64) error {
 	var inputRows [][]any
 	for _, categoryID := range categoriesID {
 		inputRows = append(inputRows, []any{warehouseID, categoryID})

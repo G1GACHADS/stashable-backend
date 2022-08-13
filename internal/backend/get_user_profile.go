@@ -16,7 +16,7 @@ type GetUserProfileOutput struct {
 	} `json:"relationships"`
 }
 
-func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
+func (b *backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
 	var out GetUserProfileOutput
 
 	query := `
@@ -69,7 +69,7 @@ func (b backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfi
 	return out, nil
 }
 
-func (b backend) GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
+func (b *backend) GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
 	var profile GetUserProfileOutput
 	cacheKey := fmt.Sprintf("profile::%d", userID)
 	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {

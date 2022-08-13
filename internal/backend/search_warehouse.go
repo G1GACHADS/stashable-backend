@@ -10,6 +10,6 @@ const (
 	SearchWarehouseFilterByPrice
 )
 
-func (b backend) SearchWarehouse(ctx context.Context, filter SearchWarehouseFilter, query string) ([]Warehouse, error) {
+func (b *backend) SearchWarehouse(ctx context.Context, filter SearchWarehouseFilter, query string) ([]Warehouse, error) {
 	return nil, nil
 }

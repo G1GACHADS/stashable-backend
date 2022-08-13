@@ -22,7 +22,7 @@ type ListWarehousesOutput struct {
 	Items      []ListWarehousesItem `json:"items"`
 }
 
-func (b backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error) {
+func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error) {
 	query := `
 	SELECT
 		(SELECT count(id) FROM warehouses),
@@ -102,7 +102,7 @@ func (b backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesO
 	return out, nil
 }
 
-func (b backend) ListWarehousesFromCache(ctx context.Context, limit int) (ListWarehousesOutput, error) {
+func (b *backend) ListWarehousesFromCache(ctx context.Context, limit int) (ListWarehousesOutput, error) {
 	var warehouses ListWarehousesOutput
 	cacheKey := fmt.Sprintf("warehouses.limit(%d)", limit)
 	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
