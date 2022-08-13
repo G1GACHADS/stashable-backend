@@ -3,10 +3,7 @@ package main
 import (
 	"context"
 	"math/rand"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 
 	"github.com/G1GACHADS/backend/internal/backend"
 	"github.com/G1GACHADS/backend/internal/clients"
@@ -61,15 +58,7 @@ func main() {
 	logger.Init(true)
 
 	ctx, cancel := context.WithCancel(context.Background())
-
-	// Wait for kill signals to gracefully shutdown the server
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-		<-c
-
-		cancel()
-	}()
+	defer cancel()
 
 	config := config.New()
 	clients, err := clients.New(ctx, config)
