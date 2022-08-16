@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// CreateUpdateRentalStatusHandler to create multiple handlers for different rental status updates
+// CreateUpdateRentalStatusHandler to create support for multiple handlers for different rental status updates
 func (h *handler) CreateUpdateRentalStatusHandler(status backend.RentalStatus) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		rentalID, err := c.ParamsInt("id")
