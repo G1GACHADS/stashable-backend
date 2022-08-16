@@ -32,22 +32,47 @@ type Warehouse struct {
 }
 
 var (
-	ErrWarehouseDoesNotExists  = errors.New("warehouse does not exists")
+	ErrWarehouseDoesNotExists = errors.New("warehouse does not exists")
 )
 
-type Item struct {
-	ID          int64     `json:"id"`
-	UserID      int64     `json:"user_id"`
-	WarehouseID int64     `json:"warehouse_id"`
-	CategoryID  int64     `json:"category_id"`
-	Name        string    `json:"name"`
-	Weight      float64   `json:"weight"`
-	Width       float64   `json:"width"`
-	Height      float64   `json:"height"`
-	Length      float64   `json:"length"`
-	Quantity    int       `json:"quantity"`
-	CreatedAt   time.Time `json:"created_at"`
+type RentalType string
+
+const (
+	RentalSelfStorage RentalType = "self-storage"
+	RentalDisposal    RentalType = "disposal"
+)
+
+type RentalStatus string
+
+const (
+	RentalStatusUnpaid    RentalStatus = "unpaid"
+	RentalStatusPaid      RentalStatus = "paid"
+	RentalStatusCancelled RentalStatus = "cancelled"
+	RentalStatusReturned  RentalStatus = "returned"
+)
+
+type Rental struct {
+	ID           int64        `json:"id"`
+	UserID       int64        `json:"user_id"`
+	WarehouseID  int64        `json:"warehouse_id"`
+	ImageURLs    []string     `json:"image_urls"`
+	Name         string       `json:"name"`
+	Description  string       `json:"description"`
+	Weight       float64      `json:"weight"`
+	Width        float64      `json:"width"`
+	Height       float64      `json:"height"`
+	Length       float64      `json:"length"`
+	Quantity     int          `json:"quantity"`
+	PaidAnnually bool         `json:"paid_annually"`
+	Type         RentalType   `json:"type"`
+	Status       RentalStatus `json:"status"`
+	CreatedAt    time.Time    `json:"created_at"`
 }
+
+var (
+	ErrRentalDoesNotExists = errors.New("rental does not exists")
+	ErrRentalDoesNotBelongToUser = errors.New("rental does not belong to user")
+)
 
 type Category struct {
 	ID   int64  `json:"id"`

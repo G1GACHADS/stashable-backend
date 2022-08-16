@@ -28,6 +28,12 @@ type Backend interface {
 	CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error
 	DeleteWarehouse(ctx context.Context, warehouseID int64) error
 
+	// Rentals
+	GetUserRentals(ctx context.Context, userID int64) (GetUserRentalsOutput, error)
+	GetUserRentalsFromCache(ctx context.Context, userID int64) (GetUserRentalsOutput, error)
+	CreateRental(ctx context.Context, input CreateRentalInput) (int64, error)
+	UpdateRentalStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error
+
 	// Addresses
 	UpdateAddress(ctx context.Context, addressID int64) error
 }

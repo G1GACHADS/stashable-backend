@@ -15,6 +15,9 @@ prod: ## Spins up the containers in production mode
 stop: ## Stops the containers
 	docker-compose down
 
+populate: ## runs db populate script
+	go run cmd/populate/main.go
+
 docker-clean: ## Cleans all
 	docker stop $$(docker ps -q)
 	docker rm $$(docker ps -a -f status=exited -q)

@@ -14,7 +14,7 @@ import (
 	"github.com/gofiber/helmet/v2"
 )
 
-func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
+func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:      "stashable_http_server",
 		WriteTimeout: 30 * time.Second,
@@ -22,8 +22,6 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 		JSONEncoder:  sonic.Marshal,
 		JSONDecoder:  sonic.Unmarshal,
 	})
-
-	app.Get("/metrics", monitor.New(monitor.Config{Title: "Stashable metrics"}))
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
@@ -41,13 +39,17 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 		ReferrerPolicy:        "strict-origin-when-cross-origin",
 	}))
 
+	app.Static("/public", "./public")
+
+	app.Get("/metrics", monitor.New(monitor.Config{Title: "Stashable metrics"}))
+
 	app.Get("/health-check", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"status": "UP",
 		})
 	})
 
-	h := NewHandler(backend)
+	h := NewHandler(b, &cfg.App)
 
 	// Auth routes
 	app.Post("/auth/login", h.AuthenticateUser)
@@ -66,13 +68,30 @@ func NewServer(backend backend.Backend, cfg *config.Config) *fiber.App {
 	app.Post("/warehouses", middleware.Authenticated, h.CreateWarehouse)
 	app.Delete("/warehouses/:id", middleware.Authenticated, h.DeleteWarehouse)
 
+	// Rentals
+	app.Get("/rent/history", middleware.Authenticated, h.GetUserRentals)
+	app.Post("/rent/:warehouseID", middleware.Authenticated, h.CreateRental)
+
+	app.Patch("/rent/:id/pay",
+		middleware.Authenticated,
+		h.CreateUpdateRentalStatusHandler(backend.RentalStatusPaid))
+
+	app.Patch("/rent/:id/cancel",
+		middleware.Authenticated,
+		h.CreateUpdateRentalStatusHandler(backend.RentalStatusCancelled))
+
+	app.Patch("/rent/:id/return",
+		middleware.Authenticated,
+		h.CreateUpdateRentalStatusHandler(backend.RentalStatusReturned))
+
 	return app
 }
 
 type handler struct {
 	backend backend.Backend
+	appCfg  *config.AppConfig
 }
 
-func NewHandler(backend backend.Backend) *handler {
-	return &handler{backend: backend}
+func NewHandler(backend backend.Backend, appCfg *config.AppConfig) *handler {
+	return &handler{backend: backend, appCfg: appCfg}
 }

@@ -68,10 +68,10 @@ func main() {
 
 	b := backend.New(clients, config)
 
-	// b.CreateCategory(ctx, "Chemical")
-	// b.CreateCategory(ctx, "Electric Components")
-	// b.CreateCategory(ctx, "Fragile / Glass")
-	// b.CreateCategory(ctx, "Heavy Materials")
+	b.CreateCategory(ctx, "Chemical")
+	b.CreateCategory(ctx, "Electric Components")
+	b.CreateCategory(ctx, "Fragile / Glass")
+	b.CreateCategory(ctx, "Heavy Materials")
 
 	minBasePrice := float64(200000)
 	maxBasePrice := float64(25000000)

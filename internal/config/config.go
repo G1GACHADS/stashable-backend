@@ -6,6 +6,7 @@ type AppConfig struct {
 	Address      string
 	JWTSecretKey string
 	JWTDuration  time.Duration
+	UploadsPath  string
 }
 
 type ClientsConfig struct {
@@ -35,6 +36,7 @@ func New() *Config {
 		JWTSecretKey: LookupEnv("JWT_SECRET_KEY", "secret"),
 		JWTDuration: LookupEnv("JWT_DURATION", time.Duration(
 			time.Now().Add(time.Hour*24*30).Unix())),
+		UploadsPath: LookupEnv("UPLOADS_PATH", "public/uploads"),
 	}
 
 	c.Clients = ClientsConfig{
