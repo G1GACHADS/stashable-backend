@@ -50,8 +50,17 @@ func (lim *Limiter) Wait() {
 	lim.wg.Wait()
 }
 
+func generateUniqueRandomSlice(n int64) []int64 {
+	s := make([]int64, n)
+	for i := int64(1); i <= n; i++ {
+		s[i-1] = i
+	}
+
+	return s
+}
+
 const (
-	n = 100
+	n = 1000
 )
 
 func main() {
@@ -76,9 +85,10 @@ func main() {
 	minBasePrice := float64(200000)
 	maxBasePrice := float64(25000000)
 
-	limiter := NewLimiter(8)
+	limiter := NewLimiter(12)
 	for i := 0; i < n; i++ {
 		started := limiter.Go(ctx, func() {
+			generatedCategoryIDs := generateUniqueRandomSlice(rand.Int63n(3) + 1)
 			err := b.CreateWarehouse(ctx, backend.CreateWarehouseInput{
 				Warehouse: backend.Warehouse{
 					Name:        "PT. " + faker.Word(),
@@ -92,9 +102,9 @@ func main() {
 					Province:   faker.Word(),
 					City:       faker.Word(),
 					StreetName: faker.Sentence(),
-					ZipCode:    rand.Intn(180000-170000) + 170000,
+					ZipCode:    rand.Intn(18000-17000) + 17000,
 				},
-				CategoryIDs: []int64{1, 2, 3, 4},
+				CategoryIDs: generatedCategoryIDs,
 			})
 			if err != nil {
 				logger.M.Warnf("Worker-#%d: failed inserting\nreason:%v", i, err)

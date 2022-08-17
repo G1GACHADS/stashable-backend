@@ -64,6 +64,7 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 
 	// Warehouse routes
 	app.Get("/warehouses", h.ListWarehouses)
+	app.Get("/warehouses/search", h.SearchWarehouses)
 	app.Get("/warehouses/:id", h.GetWarehouse)
 	app.Post("/warehouses", middleware.Authenticated, h.CreateWarehouse)
 	app.Delete("/warehouses/:id", middleware.Authenticated, h.DeleteWarehouse)

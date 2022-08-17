@@ -1,6 +1,8 @@
 public/uploads/*
 !public/uploads/.gitkeep
 
+*.session.sql
+
 .env
 tmp
 .tmp
