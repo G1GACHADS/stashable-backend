@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/G1GACHADS/backend/internal/logger"
+	"github.com/G1GACHADS/backend/logger"
 	"github.com/bytedance/sonic"
 )
 
@@ -17,7 +17,6 @@ type GetUserRentalsItemAttributes struct {
 type GetUserRentalsItem struct {
 	Attributes    GetUserRentalsItemAttributes `json:"attributes"`
 	Relationships struct {
-		User      User      `json:"user"`
 		Warehouse Warehouse `json:"warehouse"`
 	} `json:"relationships"`
 }
@@ -30,40 +29,11 @@ type GetUserRentalsOutput struct {
 func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRentalsOutput, error) {
 	query := `
 	SELECT
-		rentals.id,
-		rentals.user_id,
-		rentals.warehouse_id,
-		rentals.image_urls,
-		rentals.name,
-		rentals.description,
-		rentals.weight,
-		rentals.width,
-		rentals.height,
-		rentals.length,
-		rentals.quantity,
-		rentals.paid_annually,
-		rentals.type,
-		rentals.status,
-		rentals.created_at,
-		users.id,
-		users.address_id,
-		users.full_name,
-		users.email,
-		users.phone_number,
-		users.created_at,
-		warehouses.id,
-		warehouses.address_id,
-		warehouses.name,
-		warehouses.image_url,
-		warehouses.description,
-		warehouses.description,
-		warehouses.base_price,
-		warehouses.created_at
-	FROM rentals
-	LEFT JOIN users ON rentals.user_id = users.id
-	LEFT JOIN warehouses on rentals.warehouse_id = warehouses.id
-	WHERE rentals.user_id = $1
-	`
+		r.*,
+		w.*
+	FROM rentals r
+	LEFT JOIN warehouses AS w ON r.warehouse_id = w.id
+	WHERE r.user_id = $1`
 
 	var rentals []GetUserRentalsItem
 
@@ -71,13 +41,15 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 	if err != nil {
 		return GetUserRentalsOutput{}, nil
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var rental GetUserRentalsItem
-		rows.Scan(
+		err = rows.Scan(
 			&rental.Attributes.ID,
 			&rental.Attributes.UserID,
 			&rental.Attributes.WarehouseID,
+			&rental.Attributes.CategoryID,
 			&rental.Attributes.ImageURLs,
 			&rental.Attributes.Name,
 			&rental.Attributes.Description,
@@ -90,19 +62,14 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 			&rental.Attributes.Type,
 			&rental.Attributes.Status,
 			&rental.Attributes.CreatedAt,
-			&rental.Relationships.User.ID,
-			&rental.Relationships.User.AddressID,
-			&rental.Relationships.User.FullName,
-			&rental.Relationships.User.Email,
-			&rental.Relationships.User.PhoneNumber,
-			&rental.Relationships.User.CreatedAt,
 			&rental.Relationships.Warehouse.ID,
 			&rental.Relationships.Warehouse.AddressID,
 			&rental.Relationships.Warehouse.Name,
 			&rental.Relationships.Warehouse.ImageURL,
 			&rental.Relationships.Warehouse.Description,
-			&rental.Relationships.Warehouse.Description,
 			&rental.Relationships.Warehouse.BasePrice,
+			&rental.Relationships.Warehouse.Email,
+			&rental.Relationships.Warehouse.PhoneNumber,
 			&rental.Relationships.Warehouse.CreatedAt,
 		)
 		if err != nil {

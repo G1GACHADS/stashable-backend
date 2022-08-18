@@ -55,6 +55,7 @@ type Rental struct {
 	ID           int64        `json:"id"`
 	UserID       int64        `json:"user_id"`
 	WarehouseID  int64        `json:"warehouse_id"`
+	CategoryID   int64        `json:"category_id"`
 	ImageURLs    []string     `json:"image_urls"`
 	Name         string       `json:"name"`
 	Description  string       `json:"description"`
@@ -70,7 +71,7 @@ type Rental struct {
 }
 
 var (
-	ErrRentalDoesNotExists = errors.New("rental does not exists")
+	ErrRentalDoesNotExists       = errors.New("rental does not exists")
 	ErrRentalDoesNotBelongToUser = errors.New("rental does not belong to user")
 )
 

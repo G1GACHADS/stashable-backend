@@ -1,6 +1,8 @@
 package api
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 func (h *handler) GetUserRentals(c *fiber.Ctx) error {
 	userID := int64(c.Locals("userID").(float64))

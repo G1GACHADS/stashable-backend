@@ -7,8 +7,8 @@ import (
 
 	"github.com/G1GACHADS/backend/internal/api/mime"
 	"github.com/G1GACHADS/backend/internal/backend"
-	"github.com/G1GACHADS/backend/internal/logger"
-	"github.com/G1GACHADS/backend/internal/nanoid"
+	"github.com/G1GACHADS/backend/logger"
+	"github.com/G1GACHADS/backend/nanoid"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slices"
 )
@@ -33,6 +33,7 @@ type CreateRentalParams struct {
 	Quantity     int                `form:"quantity"`
 	PaidAnnually bool               `form:"paid_annually"`
 	Type         backend.RentalType `form:"type"`
+	CategoryID   int64              `form:"category_id"`
 }
 
 func (p CreateRentalParams) Validate() error {
@@ -45,6 +46,7 @@ func (p CreateRentalParams) Validate() error {
 		"length":      p.Length,
 		"quantity":    p.Quantity,
 		"type":        p.Type,
+		"category_id": p.CategoryID,
 	}); err != nil {
 		return err
 	}
@@ -128,6 +130,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 	rentalID, err := h.backend.CreateRental(c.Context(), backend.CreateRentalInput{
 		UserID:       userID,
 		WarehouseID:  int64(warehouseID),
+		CategoryID:   params.CategoryID,
 		ImageURLs:    imageURLs,
 		Description:  params.Description,
 		PaidAnnually: params.PaidAnnually,
@@ -139,30 +142,27 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		Quantity:     params.Quantity,
 		Type:         params.Type,
 	})
-
-	switch {
-	case errors.Is(err, backend.ErrWarehouseDoesNotExists):
-		// Spawn goroutine to delete the uploaded file
-		// TODO: optimize this shit, cus it's so fucking terrible
+	if err != nil {
 		go func(imageURLs []string) {
 			for _, imageURL := range imageURLs {
-				if err := os.Remove(imageURL); err != nil {
-					logger.M.Warn("failed removing %s: %v", imageURL, err)
+				path := imageURL[len(h.appCfg.Address):]
+				wd, err := os.Getwd()
+				if err != nil {
+					logger.M.Warnf("failed removing %s: %v", imageURL, err)
+					continue
+				}
+
+				if err := os.Remove(wd + path); err != nil {
+					logger.M.Warnf("failed removing %s: %v", imageURL, err)
 				}
 			}
 		}(imageURLs)
 
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": err.Error(),
-		})
-	case err != nil:
-		go func(imageURLs []string) {
-			for _, imageURL := range imageURLs {
-				if err := os.Remove(imageURL); err != nil {
-					logger.M.Warn("failed removing %s: %v", imageURL, err)
-				}
-			}
-		}(imageURLs)
+		if errors.Is(err, backend.ErrWarehouseOrCategoryDoesNotExists) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "There was a problem on our side",

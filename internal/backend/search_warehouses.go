@@ -24,6 +24,7 @@ func (b *backend) SearchWarehouses(ctx context.Context, searchQuery string, limi
 	if err != nil {
 		return SearchWarehousesOutput{}, err
 	}
+	defer rows.Close()
 
 	var warehouses []SearchWarehousesItem
 

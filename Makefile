@@ -16,7 +16,7 @@ stop: ## Stops the containers
 	docker-compose down
 
 populate: ## runs db populate script
-	go run cmd/populate/main.go
+	go run cmd/populate/goroutine_limiter.go cmd/populate/util.go cmd/populate/main.go
 
 docker-clean: ## Cleans all
 	docker stop $$(docker ps -q)

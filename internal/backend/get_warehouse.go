@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/G1GACHADS/backend/internal/logger"
+	"github.com/G1GACHADS/backend/logger"
 	"github.com/bytedance/sonic"
 	"github.com/jackc/pgx/v4"
 )
@@ -19,38 +19,18 @@ type GetWarehouseOutput struct {
 }
 
 func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
-	query := `
-	SELECT
-		warehouses.id,
-		warehouses.name,
-		warehouses.image_url,
-		warehouses.description,
-		warehouses.base_price,
-		warehouses.created_at,
-		addresses.id,
-		addresses.province,
-		addresses.city,
-		addresses.street_name,
-		addresses.zip_code,
-		array_agg(categories.name)
-	FROM warehouses
-	LEFT JOIN addresses ON warehouses.address_id = addresses.id
-	LEFT JOIN warehouse_categories as wc ON warehouses.id = wc.warehouse_id
-	LEFT JOIN categories ON wc.category_id = categories.id
-	WHERE warehouses.id = $1
-	GROUP BY
-		warehouses.id,
-		addresses.id
-	`
-
 	var warehouse GetWarehouseOutput
 
-	err := b.clients.DB.QueryRow(ctx, query, warehouseID).Scan(
+	err := b.clients.DB.QueryRow(ctx, "SELECT * FROM warehouses_list WHERE w_id = $1", warehouseID).Scan(
+		nil,
 		&warehouse.Attributes.ID,
+		&warehouse.Attributes.AddressID,
 		&warehouse.Attributes.Name,
 		&warehouse.Attributes.ImageURL,
 		&warehouse.Attributes.Description,
 		&warehouse.Attributes.BasePrice,
+		&warehouse.Attributes.Email,
+		&warehouse.Attributes.PhoneNumber,
 		&warehouse.Attributes.CreatedAt,
 		&warehouse.Relationships.Address.ID,
 		&warehouse.Relationships.Address.Province,

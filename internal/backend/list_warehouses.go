@@ -18,38 +18,13 @@ type ListWarehousesOutput struct {
 }
 
 func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error) {
-	query := `
-	SELECT
-		(SELECT count(id) FROM warehouses),
-		warehouses.id,
-		warehouses.address_id,
-		warehouses.name,
-		warehouses.image_url,
-		warehouses.description,
-		warehouses.base_price,
-		warehouses.created_at,
-		addresses.id,
-		addresses.province,
-		addresses.city,
-		addresses.street_name,
-		addresses.zip_code,
-		array_agg(categories.name)
-	FROM warehouses
-	LEFT JOIN addresses ON warehouses.address_id = addresses.id
-	LEFT JOIN warehouse_categories as wc ON warehouses.id = wc.warehouse_id
-	LEFT JOIN categories ON wc.category_id = categories.id
-	GROUP BY
-		warehouses.id,
-		addresses.id
-	LIMIT $1
-	`
-
 	var warehouses []ListWarehousesItem
 
-	rows, err := b.clients.DB.Query(ctx, query, limit)
+	rows, err := b.clients.DB.Query(ctx, "SELECT * FROM warehouses_list LIMIT $1", limit)
 	if err != nil {
 		return ListWarehousesOutput{}, err
 	}
+	defer rows.Close()
 
 	var count int
 
@@ -63,6 +38,8 @@ func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehouses
 			&row.Attributes.ImageURL,
 			&row.Attributes.Description,
 			&row.Attributes.BasePrice,
+			&row.Attributes.Email,
+			&row.Attributes.PhoneNumber,
 			&row.Attributes.CreatedAt,
 			&row.Relationships.Address.ID,
 			&row.Relationships.Address.Province,

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/G1GACHADS/backend/internal/logger"
+	"github.com/G1GACHADS/backend/logger"
 	"github.com/bytedance/sonic"
 )
 
@@ -27,11 +27,7 @@ func (b *backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProf
 		users.email,
 		users.phone_number,
 		users.created_at,
-		addresses.id,
-		addresses.province,
-		addresses.city,
-		addresses.street_name,
-		addresses.zip_code
+		addresses.*
 	FROM users
 	LEFT JOIN addresses ON users.address_id = addresses.id
 	WHERE users.id = $1`
