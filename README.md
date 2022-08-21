@@ -2,7 +2,9 @@
 
 REST API Service using Go, PostgreSQL database and Redis for caching
 
-## Architecture
+## **Architecture**
+
+> NOTE: This architecture was made in consideration of time (1 month deadline). Thus, this is a minified uncle bob's clean architecture without the repository/entity layer (Business is mixed with repository).
 
 ```sh
 ├── api # Presentation layer
