@@ -7,7 +7,7 @@ Stashable REST API service in Go.
 ```sh
 ├── build
 ├── cmd
-│   ├── api # Rest API endpoint
+│   ├── api # Rest API entrypoint
 │   └── populate # Database populate script
 ├── db # Database Migrations
 ├── hack # Scripts
