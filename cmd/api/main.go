@@ -6,11 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/G1GACHADS/stashable-backend/internal/api"
-	"github.com/G1GACHADS/stashable-backend/internal/backend"
-	"github.com/G1GACHADS/stashable-backend/internal/clients"
-	"github.com/G1GACHADS/stashable-backend/internal/config"
-	"github.com/G1GACHADS/stashable-backend/logger"
+	"github.com/G1GACHADS/stashable-backend/api"
+	"github.com/G1GACHADS/stashable-backend/backend"
+	"github.com/G1GACHADS/stashable-backend/clients"
+	"github.com/G1GACHADS/stashable-backend/config"
+	"github.com/G1GACHADS/stashable-backend/core/logger"
 	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/sync/errgroup"
 )

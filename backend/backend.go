@@ -3,8 +3,8 @@ package backend
 import (
 	"context"
 
-	"github.com/G1GACHADS/stashable-backend/internal/clients"
-	"github.com/G1GACHADS/stashable-backend/internal/config"
+	"github.com/G1GACHADS/stashable-backend/clients"
+	"github.com/G1GACHADS/stashable-backend/config"
 )
 
 type Backend interface {

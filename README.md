@@ -1,26 +1,28 @@
 # Stashable Backend Repository
 
-Stashable REST API service in Go.
+REST API Service using Go, PostgreSQL database and Redis for caching
 
 ## Architecture
 
 ```sh
-├── build
-├── cmd
-│   ├── api # Rest API entrypoint
-│   └── populate # Database populate script
-├── db # Database Migrations
-├── hack # Scripts
-├── internal # Application source code
-│   ├── api # Presentation layer (HTTP handlers)
-│   ├── backend # Business layer
-│   ├── clients # Infrastructure layer
-│   └── config # Configurations
-├── public
-│   └── uploads # Uploaded images
-├── logger
-├── nanoid
-└── token
+├── api # Presentation layer
+├── backend # Business layer
+├── build # Dockerfiles
+├── clients # Infrastructure layer
+├── cmd # Application entrypoint
+│   ├── api # REST API entrypoint
+│   └── populate # Populate db script
+├── config # Application configuration
+├── core # Application core libraries
+│   ├── logger
+│   ├── mime
+│   ├── nanoid
+│   └── token
+├── db # Database migration scripts
+├── hack # Bash scripts
+│   └── db
+└── public
+    └── uploads # Uploaded images
 ```
 
 ## Getting Started
@@ -35,4 +37,39 @@ Start local development environment
 
 ```bash
 make apiserver
+```
+
+Migrate database
+
+```bash
+chmod +x ./hack/db/migrate_db.sh
+./hack/db/migrate_db.sh
+```
+
+Populating DB (only warehouses & categories for now)
+
+```bash
+make populate
+```
+
+#### Extras
+
+Create migration
+
+```bash
+$ chmod +x ./hack/db/migrate_new.sh
+$ ./hack/db/migrate_new.sh
+Usage: ./hack/db/migrate_new.sh NAME
+
+$ ./hack/db/migrate_new.sh init
+/home/.../stashable-backend/db/000001_init.up.sql
+/home/.../stashable-backend/db/000001_init.down.sql
+
+```
+
+HTTP Load test
+
+```bash
+chmod +x ./hack/http_load_test.sh
+./hack/http_load_test.sh
 ```

@@ -4,10 +4,10 @@ import (
 	"context"
 	"math/rand"
 
-	"github.com/G1GACHADS/stashable-backend/internal/backend"
-	"github.com/G1GACHADS/stashable-backend/internal/clients"
-	"github.com/G1GACHADS/stashable-backend/internal/config"
-	"github.com/G1GACHADS/stashable-backend/logger"
+	"github.com/G1GACHADS/stashable-backend/backend"
+	"github.com/G1GACHADS/stashable-backend/clients"
+	"github.com/G1GACHADS/stashable-backend/config"
+	"github.com/G1GACHADS/stashable-backend/core/logger"
 	"github.com/bxcodec/faker/v3"
 	_ "github.com/joho/godotenv/autoload"
 )
