@@ -10,6 +10,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/helmet/v2"
 )
@@ -22,6 +23,8 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 		JSONEncoder:  sonic.Marshal,
 		JSONDecoder:  sonic.Unmarshal,
 	})
+
+	app.Use(logger.New())
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",

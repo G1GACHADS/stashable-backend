@@ -9,28 +9,53 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (b *backend) AuthenticateUser(ctx context.Context, email, password string) (string, error) {
-	var user User
+type AuthenticateUserOutput struct {
+	Attributes struct {
+		User        User   `json:"user"`
+		AccessToken string `json:"access_token"`
+	} `json:"attributes"`
+	Relationships struct {
+		Address Address `json:"address"`
+	} `json:"relationships"`
+}
 
-	err := b.clients.DB.QueryRow(ctx, "SELECT id, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password)
+func (b *backend) AuthenticateUser(ctx context.Context, email, password string) (AuthenticateUserOutput, error) {
+	var out AuthenticateUserOutput
+
+	err := b.clients.DB.
+		QueryRow(ctx, "SELECT * FROM users LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.email = $1", email).
+		Scan(&out.Attributes.User.ID,
+			&out.Attributes.User.AddressID,
+			&out.Attributes.User.FullName,
+			&out.Attributes.User.Email,
+			&out.Attributes.User.PhoneNumber,
+			&out.Attributes.User.Password,
+			&out.Attributes.User.CreatedAt,
+			&out.Relationships.Address.ID,
+			&out.Relationships.Address.Province,
+			&out.Relationships.Address.City,
+			&out.Relationships.Address.StreetName,
+			&out.Relationships.Address.ZipCode)
 	if err != nil {
-		return "", err
+		return AuthenticateUserOutput{}, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", err
+	if err := bcrypt.CompareHashAndPassword([]byte(out.Attributes.User.Password), []byte(password)); err != nil {
+		return AuthenticateUserOutput{}, err
 	}
 
 	accessToken, err := jwt.Generate(map[string]any{
-		"userID": user.ID,
 		"exp":    time.Now().Add(b.cfg.App.JWTDuration).Unix(),
-		"email":  user.Email,
+		"userID": out.Attributes.User.ID,
+		"email":  out.Attributes.User.Email,
 	}, b.cfg.App.JWTSecretKey)
 	if err != nil {
-		return "", err
+		return AuthenticateUserOutput{}, err
 	}
 
-	return accessToken, nil
+	out.Attributes.AccessToken = accessToken
+
+	return out, nil
 }
 
 func (b *backend) RegisterUser(ctx context.Context, user User, address Address) (string, error) {

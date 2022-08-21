@@ -9,7 +9,7 @@ import (
 
 type Backend interface {
 	// Auth
-	AuthenticateUser(ctx context.Context, email, password string) (string, error)
+	AuthenticateUser(ctx context.Context, email, password string) (AuthenticateUserOutput, error)
 	RegisterUser(ctx context.Context, user User, address Address) (string, error)
 
 	// Profile
