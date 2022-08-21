@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/G1GACHADS/backend/token/jwt"
+	"github.com/G1GACHADS/stashable-backend/token/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 

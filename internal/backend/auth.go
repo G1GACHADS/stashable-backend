@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/G1GACHADS/backend/token/jwt"
+	"github.com/G1GACHADS/stashable-backend/token/jwt"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 )

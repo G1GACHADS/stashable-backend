@@ -1,4 +1,4 @@
-module github.com/G1GACHADS/backend
+module github.com/G1GACHADS/stashable-backend
 
 go 1.18
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/G1GACHADS/backend/logger"
+	"github.com/G1GACHADS/stashable-backend/logger"
 	"github.com/jackc/pgx/v4"
 )
 

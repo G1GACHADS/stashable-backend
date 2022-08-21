@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/G1GACHADS/backend/internal/api/middleware"
-	"github.com/G1GACHADS/backend/internal/backend"
-	"github.com/G1GACHADS/backend/internal/config"
+	"github.com/G1GACHADS/stashable-backend/internal/api/middleware"
+	"github.com/G1GACHADS/stashable-backend/internal/backend"
+	"github.com/G1GACHADS/stashable-backend/internal/config"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

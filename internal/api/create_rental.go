@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/G1GACHADS/backend/internal/api/mime"
-	"github.com/G1GACHADS/backend/internal/backend"
-	"github.com/G1GACHADS/backend/logger"
-	"github.com/G1GACHADS/backend/nanoid"
+	"github.com/G1GACHADS/stashable-backend/internal/api/mime"
+	"github.com/G1GACHADS/stashable-backend/internal/backend"
+	"github.com/G1GACHADS/stashable-backend/logger"
+	"github.com/G1GACHADS/stashable-backend/nanoid"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slices"
 )

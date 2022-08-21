@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/G1GACHADS/backend/logger"
+	"github.com/G1GACHADS/stashable-backend/logger"
 	"github.com/bytedance/sonic"
 )
 

@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 
-	"github.com/G1GACHADS/backend/internal/backend"
+	"github.com/G1GACHADS/stashable-backend/internal/backend"
 	"github.com/gofiber/fiber/v2"
 )
 
