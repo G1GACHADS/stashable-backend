@@ -41,6 +41,7 @@ func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehouses
 			&row.Attributes.Email,
 			&row.Attributes.PhoneNumber,
 			&row.Attributes.CreatedAt,
+			&row.Attributes.RoomsCount,
 			&row.Relationships.Address.ID,
 			&row.Relationships.Address.Province,
 			&row.Relationships.Address.City,

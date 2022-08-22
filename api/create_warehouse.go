@@ -2,11 +2,21 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/mail"
 
 	"github.com/G1GACHADS/stashable-backend/backend"
 	"github.com/gofiber/fiber/v2"
 )
+
+type CreateWarehouseParamsRoom struct {
+	ImageURL string  `json:"image_url"`
+	Name     string  `json:"name"`
+	Width    float64 `json:"width"`
+	Height   float64 `json:"height"`
+	Length   float64 `json:"length"`
+	Price    float64 `json:"price"`
+}
 
 type CreateWarehouseParams struct {
 	Name        string  `json:"name"`
@@ -21,7 +31,8 @@ type CreateWarehouseParams struct {
 	StreetName string `json:"street_name"`
 	ZipCode    int    `json:"zip_code"`
 
-	CategoryIDs []int64 `json:"categories"`
+	Rooms       []CreateWarehouseParamsRoom `json:"rooms"`
+	CategoryIDs []int64                     `json:"categories"`
 }
 
 func (p CreateWarehouseParams) Validate() error {
@@ -40,12 +51,29 @@ func (p CreateWarehouseParams) Validate() error {
 		return err
 	}
 
-	if _, err := mail.ParseAddress(p.Email); err != nil {
-		return errors.New("invalid email address")
+	if len(p.Rooms) == 0 {
+		return errors.New("rooms is required")
 	}
 
 	if len(p.CategoryIDs) == 0 {
 		return errors.New("categories is required")
+	}
+
+	for idx, room := range p.Rooms {
+		if err := requiredFields(map[string]any{
+			fmt.Sprintf("rooms[%d].name", idx):      room.Name,
+			fmt.Sprintf("rooms[%d].image_url", idx): room.ImageURL,
+			fmt.Sprintf("rooms[%d].width", idx):     room.Width,
+			fmt.Sprintf("rooms[%d].height", idx):    room.Height,
+			fmt.Sprintf("rooms[%d].length", idx):    room.Length,
+			fmt.Sprintf("rooms[%d].price", idx):     room.Price,
+		}); err != nil {
+			return err
+		}
+	}
+
+	if _, err := mail.ParseAddress(p.Email); err != nil {
+		return errors.New("invalid email address")
 	}
 
 	return nil
@@ -68,6 +96,18 @@ func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
 		})
 	}
 
+	rooms := make([]backend.Room, len(params.Rooms))
+	for idx, room := range params.Rooms {
+		rooms[idx] = backend.Room{
+			ImageURL: room.ImageURL,
+			Name:     room.Name,
+			Width:    room.Width,
+			Height:   room.Height,
+			Length:   room.Length,
+			Price:    room.Price,
+		}
+	}
+
 	err := h.backend.CreateWarehouse(c.Context(), backend.CreateWarehouseInput{
 		Warehouse: backend.Warehouse{
 			Name:        params.Name,
@@ -83,6 +123,7 @@ func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
 			StreetName: params.StreetName,
 			ZipCode:    params.ZipCode,
 		},
+		Rooms:       rooms,
 		CategoryIDs: params.CategoryIDs,
 	})
 

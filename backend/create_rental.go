@@ -9,6 +9,7 @@ type CreateRentalInput struct {
 	UserID       int64
 	WarehouseID  int64
 	CategoryID   int64
+	RoomID       int64
 	ImageURLs    []string
 	Name         string
 	Description  string
@@ -21,22 +22,23 @@ type CreateRentalInput struct {
 	Type         RentalType
 }
 
-var ErrWarehouseOrCategoryDoesNotExists = errors.New("warehouse or category does not exists")
+var ErrWarehouseOrCategoryOrRoomDoesNotExists = errors.New("warehouse or category or room does not exists")
 
 func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (int64, error) {
-	bothExistsQuery := `
+	existsQuery := `
 	SELECT EXISTS (SELECT 1 FROM warehouses WHERE id = $1) AND
-		   EXISTS (SELECT 1 FROM categories WHERE id = $2)`
+		   EXISTS (SELECT 1 FROM categories WHERE id = $2) AND
+		   EXISTS (SELECT 1 FROM rooms WHERE id = $3)`
 
 	var exists bool
-	err := b.clients.DB.QueryRow(ctx, bothExistsQuery, input.WarehouseID, input.CategoryID).
+	err := b.clients.DB.QueryRow(ctx, existsQuery, input.WarehouseID, input.CategoryID, input.RoomID).
 		Scan(&exists)
 	if err != nil {
 		return 0, err
 	}
 
 	if !exists {
-		return 0, ErrWarehouseOrCategoryDoesNotExists
+		return 0, ErrWarehouseOrCategoryOrRoomDoesNotExists
 	}
 
 	query := `
@@ -55,9 +57,10 @@ func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (in
 		paid_annually,
 		type,
 		status,
-		created_at
+		created_at,
+		room_id
 	)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now())
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now(), $15)
 	RETURNING id`
 
 	args := []any{
@@ -75,6 +78,7 @@ func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (in
 		input.PaidAnnually,
 		input.Type,
 		RentalStatusUnpaid,
+		input.RoomID,
 	}
 
 	var rentalID int64

@@ -34,6 +34,7 @@ type CreateRentalParams struct {
 	PaidAnnually bool               `form:"paid_annually"`
 	Type         backend.RentalType `form:"type"`
 	CategoryID   int64              `form:"category_id"`
+	RoomID       int64              `form:"room_id"`
 }
 
 func (p CreateRentalParams) Validate() error {
@@ -47,6 +48,7 @@ func (p CreateRentalParams) Validate() error {
 		"quantity":    p.Quantity,
 		"type":        p.Type,
 		"category_id": p.CategoryID,
+		"room_id":     p.RoomID,
 	}); err != nil {
 		return err
 	}
@@ -131,6 +133,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		UserID:       userID,
 		WarehouseID:  int64(warehouseID),
 		CategoryID:   params.CategoryID,
+		RoomID:       params.RoomID,
 		ImageURLs:    imageURLs,
 		Description:  params.Description,
 		PaidAnnually: params.PaidAnnually,
@@ -158,7 +161,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 			}
 		}(imageURLs)
 
-		if errors.Is(err, backend.ErrWarehouseOrCategoryDoesNotExists) {
+		if errors.Is(err, backend.ErrWarehouseOrCategoryOrRoomDoesNotExists) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"message": err.Error(),
 			})

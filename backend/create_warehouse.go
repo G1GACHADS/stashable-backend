@@ -12,6 +12,7 @@ import (
 type CreateWarehouseInput struct {
 	Warehouse   Warehouse
 	Address     Address
+	Rooms       []Room
 	CategoryIDs []int64
 }
 
@@ -27,6 +28,11 @@ func (b *backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInpu
 	}
 
 	warehouseID, err := b.insertAddressAndWarehouse(ctx, tx, input)
+	if err != nil {
+		return err
+	}
+
+	err = b.bulkInsertWarehouseRooms(ctx, tx, warehouseID, input.Rooms)
 	if err != nil {
 		return err
 	}
@@ -99,6 +105,43 @@ func (b *backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, inpu
 	}
 
 	return warehouseID, nil
+}
+
+func (b *backend) bulkInsertWarehouseRooms(ctx context.Context, tx pgx.Tx, warehouseID int64, rooms []Room) error {
+	var inputRows [][]any
+	for _, room := range rooms {
+		inputRows = append(inputRows, []any{
+			warehouseID,
+			room.ImageURL,
+			room.Name,
+			room.Width,
+			room.Height,
+			room.Length,
+			room.Price,
+		})
+	}
+
+	copyCount, err := tx.CopyFrom(ctx,
+		pgx.Identifier{"rooms"},
+		[]string{
+			"warehouse_id",
+			"image_url",
+			"name",
+			"width",
+			"height",
+			"length",
+			"price",
+		},
+		pgx.CopyFromRows(inputRows))
+	if err != nil {
+		return err
+	}
+
+	if int(copyCount) != len(rooms) {
+		return fmt.Errorf("expected %d rows to be copied, but %d were copied", len(rooms), copyCount)
+	}
+
+	return nil
 }
 
 func (b *backend) bulkInsertWarehouseCategories(ctx context.Context, tx pgx.Tx, warehouseID int64, categoriesID []int64) error {

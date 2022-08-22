@@ -14,6 +14,7 @@ type GetWarehouseOutput struct {
 	Attributes    Warehouse `json:"attributes"`
 	Relationships struct {
 		Address    Address  `json:"address"`
+		Rooms      []Room   `json:"rooms"`
 		Categories []string `json:"categories"`
 	} `json:"relationships"`
 }
@@ -32,6 +33,7 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 		&warehouse.Attributes.Email,
 		&warehouse.Attributes.PhoneNumber,
 		&warehouse.Attributes.CreatedAt,
+		&warehouse.Attributes.RoomsCount,
 		&warehouse.Relationships.Address.ID,
 		&warehouse.Relationships.Address.Province,
 		&warehouse.Relationships.Address.City,
@@ -44,6 +46,29 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 			return GetWarehouseOutput{}, ErrWarehouseDoesNotExists
 		}
 		return GetWarehouseOutput{}, err
+	}
+
+	rows, err := b.clients.DB.Query(ctx, "SELECT * FROM rooms WHERE warehouse_id = $1", warehouseID)
+	if err != nil {
+		return GetWarehouseOutput{}, err
+	}
+
+	for rows.Next() {
+		var room Room
+		err = rows.Scan(
+			&room.ID,
+			&room.WarehouseID,
+			&room.ImageURL,
+			&room.Name,
+			&room.Width,
+			&room.Height,
+			&room.Length,
+			&room.Price)
+		if err != nil {
+			return GetWarehouseOutput{}, err
+		}
+
+		warehouse.Relationships.Rooms = append(warehouse.Relationships.Rooms, room)
 	}
 
 	go func(warehouse GetWarehouseOutput) {

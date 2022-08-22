@@ -62,6 +62,7 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 			&rental.Attributes.Type,
 			&rental.Attributes.Status,
 			&rental.Attributes.CreatedAt,
+			&rental.Attributes.RoomID,
 			&rental.Relationships.Warehouse.ID,
 			&rental.Relationships.Warehouse.AddressID,
 			&rental.Relationships.Warehouse.Name,
@@ -71,6 +72,7 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 			&rental.Relationships.Warehouse.Email,
 			&rental.Relationships.Warehouse.PhoneNumber,
 			&rental.Relationships.Warehouse.CreatedAt,
+			&rental.Relationships.Warehouse.RoomsCount,
 		)
 		if err != nil {
 			return GetUserRentalsOutput{}, err

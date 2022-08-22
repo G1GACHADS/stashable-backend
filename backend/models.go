@@ -28,12 +28,24 @@ type Warehouse struct {
 	BasePrice   float64   `json:"base_price"`
 	Email       string    `json:"email"`
 	PhoneNumber string    `json:"phone_number"`
+	RoomsCount  int       `json:"rooms_count"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 var (
 	ErrWarehouseDoesNotExists = errors.New("warehouse does not exists")
 )
+
+type Room struct {
+	ID          int64   `json:"id"`
+	WarehouseID int64   `json:"warehouse_id"`
+	ImageURL    string  `json:"image_url"`
+	Name        string  `json:"name"`
+	Width       float64 `json:"width"`
+	Height      float64 `json:"height"`
+	Length      float64 `json:"length"`
+	Price       float64 `json:"price"`
+}
 
 type RentalType string
 
@@ -55,6 +67,7 @@ type Rental struct {
 	ID           int64        `json:"id"`
 	UserID       int64        `json:"user_id"`
 	WarehouseID  int64        `json:"warehouse_id"`
+	RoomID       int64        `json:"room_id"`
 	CategoryID   int64        `json:"category_id"`
 	ImageURLs    []string     `json:"image_urls"`
 	Name         string       `json:"name"`
