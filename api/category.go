@@ -25,23 +25,16 @@ func (h *handler) CreateCategory(c *fiber.Ctx) error {
 	var params CreateCategoryParams
 
 	if err := c.BodyParser(&params); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	if err := params.Validate(); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	createdCategory, err := h.backend.CreateCategory(c.Context(), params.Name)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"err":     err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -53,22 +46,15 @@ func (h *handler) CreateCategory(c *fiber.Ctx) error {
 func (h *handler) DeleteCategory(c *fiber.Ctx) error {
 	categoryID, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Please provide a valid category id",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid category id")
 	}
 
 	err = h.backend.DeleteCategory(c.Context(), int64(categoryID))
 	switch {
 	case errors.Is(err, backend.ErrCategoryDoesNotExists):
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	case err != nil:
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"err":     err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

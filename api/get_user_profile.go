@@ -14,10 +14,7 @@ func (h *handler) GetUserProfile(c *fiber.Ctx) error {
 
 	profile, err := h.backend.GetUserProfile(c.Context(), userID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"err":     err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(profile)

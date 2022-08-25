@@ -85,15 +85,11 @@ func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
 	var params CreateWarehouseParams
 
 	if err := c.BodyParser(&params); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	if err := params.Validate(); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	rooms := make([]backend.Room, len(params.Rooms))
@@ -129,14 +125,9 @@ func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
 
 	switch {
 	case errors.Is(err, backend.ErrCategoryDoesNotExists):
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	case err != nil:
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"error":   err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{

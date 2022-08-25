@@ -7,10 +7,11 @@ import (
 	"github.com/G1GACHADS/stashable-backend/api/middleware"
 	"github.com/G1GACHADS/stashable-backend/backend"
 	"github.com/G1GACHADS/stashable-backend/config"
+	"github.com/G1GACHADS/stashable-backend/core/logger"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	loggerMiddleware "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/helmet/v2"
 )
@@ -22,9 +23,10 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 		ReadTimeout:  30 * time.Second,
 		JSONEncoder:  sonic.Marshal,
 		JSONDecoder:  sonic.Unmarshal,
+		ErrorHandler: CustomErrorHandler,
 	})
 
-	app.Use(logger.New())
+	app.Use(loggerMiddleware.New())
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
@@ -89,6 +91,21 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 		h.CreateUpdateRentalStatusHandler(backend.RentalStatusReturned))
 
 	return app
+}
+
+func CustomErrorHandler(c *fiber.Ctx, err error) error {
+	statusCode := fiber.StatusInternalServerError
+
+	e, ok := err.(*fiber.Error)
+	if ok {
+		statusCode = e.Code
+	} else {
+		logger.M.Error(err)
+	}
+
+	return c.Status(statusCode).JSON(fiber.Map{
+		"message": e.Message,
+	})
 }
 
 type handler struct {

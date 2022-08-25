@@ -11,17 +11,12 @@ func (h *handler) SearchWarehouses(c *fiber.Ctx) error {
 	priceAsc := c.Query("order_by") == "asc"
 	limit, err := strconv.Atoi(c.Query("limit", "20"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Please provide a valid limit",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid limit")
 	}
 
 	searchResult, err := h.backend.SearchWarehouses(c.Context(), searchQuery, limit, priceAsc)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"err":     err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(searchResult)

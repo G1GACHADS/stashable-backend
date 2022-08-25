@@ -68,35 +68,26 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 	userID := int64(c.Locals("userID").(float64))
 	warehouseID, err := c.ParamsInt("warehouseID")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Please provide a valid warehouse id",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid warehouse id")
 	}
 
 	var params CreateRentalParams
 	if err := c.BodyParser(&params); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	if err := params.Validate(); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	if len(form.File["images"]) > maxImageUploads {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": fmt.Sprintf("Maximum number of images is %d", maxImageUploads),
-		})
+		return fiber.NewError(fiber.StatusBadRequest,
+			fmt.Sprintf("Maximum number of images is %d", maxImageUploads))
 	}
 
 	imageURLs := make([]string, len(form.File["images"]))
@@ -104,10 +95,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 	for idx, image := range form.File["images"] {
 		file, err := image.Open()
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Invalid request body",
-				"err":     err.Error(),
-			})
+			return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 		}
 
 		if !mime.Contains(file, supportedImageTypes) {
@@ -121,9 +109,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		fileName := nanoid.Next()
 		filePath := h.appCfg.UploadsPath + "/" + fileName + "." + image.Filename
 		if err := c.SaveFile(image, filePath); err != nil {
-			return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 		}
 
 		imageURLs[idx] = h.appCfg.Address + "/" + filePath
@@ -162,15 +148,10 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		}(imageURLs)
 
 		if errors.Is(err, backend.ErrWarehouseOrCategoryOrRoomDoesNotExists) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"error":   err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{

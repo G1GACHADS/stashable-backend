@@ -34,22 +34,16 @@ func (h *handler) AuthenticateUser(c *fiber.Ctx) error {
 	var params AuthenticateUserParams
 
 	if err := c.BodyParser(&params); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid email/password",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	if err := params.Validate(); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	user, err := h.backend.AuthenticateUser(c.Context(), params.Email, params.Password)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid email/password",
-		})
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid email/password")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(user)
@@ -93,9 +87,11 @@ func (h *handler) RegisterUser(c *fiber.Ctx) error {
 	var params RegisterUserParams
 
 	if err := c.BodyParser(&params); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"message": "Please fill all required fields",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if err := params.Validate(); err != nil {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
 	accessToken, err := h.backend.RegisterUser(c.Context(),
@@ -114,14 +110,9 @@ func (h *handler) RegisterUser(c *fiber.Ctx) error {
 
 	switch {
 	case err == backend.ErrUserAlreadyExists:
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"message": "User already exists",
-		})
+		return fiber.NewError(fiber.StatusConflict, "User already exists")
 	case err != nil:
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "There was a problem on our side",
-			"err":     err.Error(),
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
