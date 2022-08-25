@@ -52,6 +52,7 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 	if err != nil {
 		return GetWarehouseOutput{}, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var room Room
