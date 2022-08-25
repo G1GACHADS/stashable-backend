@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"math"
 	"math/rand"
 
 	"github.com/G1GACHADS/stashable-backend/backend"
@@ -53,6 +54,19 @@ func main() {
 			}
 			categoryIDs = RemoveDuplicates(categoryIDs)
 
+			roomsAmount := RandRange(1, 4)
+			rooms := make([]backend.Room, roomsAmount)
+			for i := 0; i < roomsAmount; i++ {
+				rooms[i] = backend.Room{
+					ImageURL: "https://source.unsplash.com/random/800x800",
+					Name:     faker.Word(),
+					Width:    math.Abs(faker.Latitude()),
+					Height:   math.Abs(faker.Longitude()),
+					Length:   math.Abs(faker.Longitude()),
+					Price:    math.Abs(faker.Latitude()),
+				}
+			}
+
 			err := b.CreateWarehouse(ctx, backend.CreateWarehouseInput{
 				Warehouse: backend.Warehouse{
 					Name:        "PT. " + faker.Word() + faker.Word(),
@@ -68,6 +82,7 @@ func main() {
 					StreetName: faker.Sentence(),
 					ZipCode:    rand.Intn(18000-17000) + 17000,
 				},
+				Rooms:       rooms,
 				CategoryIDs: categoryIDs,
 			})
 			if err != nil {

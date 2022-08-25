@@ -1,6 +1,14 @@
 package main
 
-import "golang.org/x/exp/constraints"
+import (
+	"math/rand"
+
+	"golang.org/x/exp/constraints"
+)
+
+func RandRange(min, max int) int {
+	return rand.Intn(max-min) + min
+}
 
 func MaxSlice[T constraints.Ordered](slice []T) T {
 	max := T(0)
