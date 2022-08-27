@@ -10,7 +10,7 @@ import (
 type Backend interface {
 	// Auth
 	AuthenticateUser(ctx context.Context, email, password string) (AuthenticateUserOutput, error)
-	RegisterUser(ctx context.Context, user User, address Address) (string, error)
+	RegisterUser(ctx context.Context, user User, address Address) (RegisterUserOutput, error)
 
 	// Profile
 	GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error)

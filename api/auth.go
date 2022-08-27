@@ -94,7 +94,7 @@ func (h *handler) RegisterUser(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
-	accessToken, err := h.backend.RegisterUser(c.Context(),
+	user, err := h.backend.RegisterUser(c.Context(),
 		backend.User{
 			FullName:    params.FullName,
 			Email:       params.Email,
@@ -115,7 +115,5 @@ func (h *handler) RegisterUser(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"access_token": accessToken,
-	})
+	return c.Status(fiber.StatusCreated).JSON(user)
 }

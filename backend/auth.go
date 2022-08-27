@@ -58,10 +58,20 @@ func (b *backend) AuthenticateUser(ctx context.Context, email, password string) 
 	return out, nil
 }
 
-func (b *backend) RegisterUser(ctx context.Context, user User, address Address) (string, error) {
+type RegisterUserOutput struct {
+	Attributes struct {
+		User        User   `json:"user"`
+		AccessToken string `json:"access_token"`
+	} `json:"attributes"`
+	Relationships struct {
+		Address Address `json:"address"`
+	} `json:"relationships"`
+}
+
+func (b *backend) RegisterUser(ctx context.Context, user User, address Address) (RegisterUserOutput, error) {
 	tx, err := b.clients.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 	defer tx.Rollback(ctx)
 
@@ -70,12 +80,12 @@ func (b *backend) RegisterUser(ctx context.Context, user User, address Address) 
 		address.Province, address.City, address.StreetName, address.ZipCode).
 		Scan(&addressID)
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
 	var alreadyExists bool
@@ -86,22 +96,23 @@ func (b *backend) RegisterUser(ctx context.Context, user User, address Address) 
 		OR phone_number = $2
 	)`, user.Email, user.PhoneNumber).Scan(&alreadyExists)
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
 	if alreadyExists {
-		return "", ErrUserAlreadyExists
+		return RegisterUserOutput{}, ErrUserAlreadyExists
 	}
 
+	now := time.Now()
 	var userID int64
-	err = tx.QueryRow(ctx, "INSERT INTO users (address_id, full_name, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, $5, now()) RETURNING id",
-		addressID, user.FullName, user.Email, user.PhoneNumber, hash).Scan(&userID)
+	err = tx.QueryRow(ctx, "INSERT INTO users (address_id, full_name, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+		addressID, user.FullName, user.Email, user.PhoneNumber, hash, now).Scan(&userID)
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
 	accessToken, err := jwt.Generate(map[string]any{
@@ -110,8 +121,17 @@ func (b *backend) RegisterUser(ctx context.Context, user User, address Address) 
 		"email":  user.Email,
 	}, b.cfg.App.JWTSecretKey)
 	if err != nil {
-		return "", err
+		return RegisterUserOutput{}, err
 	}
 
-	return accessToken, nil
+	out := RegisterUserOutput{}
+	user.ID = userID
+	user.AddressID = addressID
+	user.CreatedAt = now
+	address.ID = addressID
+	out.Attributes.User = user
+	out.Attributes.AccessToken = accessToken
+	out.Relationships.Address = address
+
+	return out, nil
 }
