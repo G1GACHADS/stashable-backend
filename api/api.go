@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	loggerMiddleware "github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/helmet/v2"
 )
 
@@ -43,10 +42,6 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 		HSTSExcludeSubdomains: false,
 		ReferrerPolicy:        "strict-origin-when-cross-origin",
 	}))
-
-	app.Static("/public", "./public")
-
-	app.Get("/metrics", monitor.New(monitor.Config{Title: "Stashable metrics"}))
 
 	app.Get("/health-check", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
