@@ -21,10 +21,8 @@ REST API Service using Go, PostgreSQL database and Redis for caching
 │   ├── nanoid
 │   └── token
 ├── db # Database migration scripts
-├── hack # Bash scripts
-│   └── db
-└── public
-    └── uploads # Uploaded images
+└── hack # Bash scripts
+    └── db
 ```
 
 ## Getting Started
