@@ -139,6 +139,7 @@ func (b *backend) deleteRentalMediaFiles(ctx context.Context, imageURLs []string
 	var group errgroup.Group
 
 	for _, imageURL := range imageURLs {
+		imageURL := imageURL // https://go.dev/doc/faq#closures_and_goroutines
 		group.Go(func() error {
 			return b.clients.Storage.Delete(ctx, imageURL)
 		})
