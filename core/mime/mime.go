@@ -1,8 +1,6 @@
 package mime
 
 import (
-	"bytes"
-	"io"
 	"mime/multipart"
 	"net/http"
 
@@ -11,13 +9,18 @@ import (
 
 func Get(file multipart.File) (string, error) {
 	// Only allocate 512 bytes since DetectContentType only reads that amount
-	buffer := bytes.NewBuffer(make([]byte, 0, 512))
+	buffer := make([]byte, 512)
 
-	if _, err := io.Copy(buffer, file); err != nil {
+	if _, err := file.Read(buffer); err != nil {
 		return "", err
 	}
 
-	return http.DetectContentType(buffer.Bytes()), nil
+	_, err := file.Seek(0, 0) // Reset the file position after reading the first 512 bytes
+	if err != nil {
+		return "", err
+	}
+
+	return http.DetectContentType(buffer), nil
 }
 
 func Contains(file multipart.File, contentTypes []string) bool {
