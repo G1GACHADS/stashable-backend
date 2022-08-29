@@ -1,6 +1,9 @@
 package config
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type AppConfig struct {
 	Address      string
@@ -10,11 +13,7 @@ type AppConfig struct {
 }
 
 type ClientsConfig struct {
-	PostgresUser     string
-	PostgresPassword string
-	PostgresHost     string
-	PostgresPort     int
-	PostgresDB       string
+	DatabaseURL string
 
 	RedisAddress      string
 	RedisPassword     string
@@ -31,8 +30,9 @@ type Config struct {
 func New() *Config {
 	var c Config
 
+	port := LookupEnv("PORT", 5000)
 	c.App = AppConfig{
-		Address:      LookupEnv("APP_ADDRESS", "127.0.0.1:5000"),
+		Address:      LookupEnv("APP_ADDRESS", fmt.Sprintf(":%d", port)),
 		JWTSecretKey: LookupEnv("JWT_SECRET_KEY", "secret"),
 		JWTDuration: LookupEnv("JWT_DURATION", time.Duration(
 			time.Now().Add(time.Hour*24*30).Unix())),
@@ -40,11 +40,7 @@ func New() *Config {
 	}
 
 	c.Clients = ClientsConfig{
-		PostgresUser:     LookupEnv("POSTGRES_USER", "postgres"),
-		PostgresPassword: LookupEnv("POSTGRES_PASSWORD", ""),
-		PostgresHost:     LookupEnv("POSTGRES_HOST", "127.0.0.1"),
-		PostgresPort:     LookupEnv("POSTGRES_PORT", 5432),
-		PostgresDB:       LookupEnv("POSTGRES_DB", "test"),
+		DatabaseURL: LookupEnv("DATABASE_URL", ""),
 
 		RedisAddress:      LookupEnv("REDIS_ADDRESS", "redis://127.0.0.1:6379"),
 		RedisPassword:     LookupEnv("REDIS_PASSWORD", ""),

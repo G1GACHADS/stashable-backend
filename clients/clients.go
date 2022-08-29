@@ -2,8 +2,6 @@ package clients
 
 import (
 	"context"
-	"fmt"
-	"net/url"
 
 	"github.com/G1GACHADS/stashable-backend/config"
 	"github.com/go-redis/redis/v8"
@@ -24,14 +22,7 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 	group.Go(func() error {
 		var err error
 
-		connString := url.URL{
-			Scheme: "postgres",
-			Host:   fmt.Sprintf("%s:%d", cfg.Clients.PostgresHost, cfg.Clients.PostgresPort),
-			User:   url.UserPassword(cfg.Clients.PostgresUser, cfg.Clients.PostgresPassword),
-			Path:   cfg.Clients.PostgresDB,
-		}
-
-		c.DB, err = NewPostgreSQLClient(ctx, connString.String())
+		c.DB, err = NewPostgreSQLClient(ctx, cfg.Clients.DatabaseURL)
 		if err != nil {
 			return err
 		}
@@ -40,16 +31,15 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 	})
 
 	group.Go(func() error {
-		var err error
+		opts, err := redis.ParseURL(cfg.Clients.RedisAddress)
+		if err != nil {
+			return err
+		}
 
-		c.Cache, err = NewRedisClient(ctx, &redis.Options{
-			Network:      "tcp",
-			Addr:         cfg.Clients.RedisAddress,
-			DB:           cfg.Clients.RedisDB,
-			Password:     cfg.Clients.RedisPassword,
-			ReadTimeout:  cfg.Clients.RedisReadTimeout,
-			WriteTimeout: cfg.Clients.RedisWriteTimeout,
-		})
+		opts.ReadTimeout = cfg.Clients.RedisReadTimeout
+		opts.WriteTimeout = cfg.Clients.RedisWriteTimeout
+
+		c.Cache, err = NewRedisClient(ctx, opts)
 		if err != nil {
 			return err
 		}

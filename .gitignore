@@ -1,6 +1,7 @@
 public/uploads/*
 !public/uploads/.gitkeep
 
+dump.sql
 *.session.sql
 
 .env
