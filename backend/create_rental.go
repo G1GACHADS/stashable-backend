@@ -127,6 +127,11 @@ func (b *backend) uploadRentalMediaFiles(ctx context.Context, images []CreateRen
 		return nil, err
 	}
 
+	// Close files after uploading
+	for _, image := range images {
+		image.File.Close()
+	}
+
 	return imageURLs, nil
 }
 
