@@ -43,10 +43,10 @@ func main() {
 		ZipCode:    17421,
 	})
 
-	categoryChemical, _ := b.CreateCategory(ctx, "Chemical")
-	categoryElectricComponents, _ := b.CreateCategory(ctx, "Electric")
-	categoryFragileGlass, _ := b.CreateCategory(ctx, "Fragile")
-	categoryHeavyMaterials, _ := b.CreateCategory(ctx, "Heavy Materials")
+	categoryChemical, _ := b.CategoryCreate(ctx, "Chemical")
+	categoryElectricComponents, _ := b.CategoryCreate(ctx, "Electric")
+	categoryFragileGlass, _ := b.CategoryCreate(ctx, "Fragile")
+	categoryHeavyMaterials, _ := b.CategoryCreate(ctx, "Heavy Materials")
 	categories := []int64{
 		categoryChemical.ID,
 		categoryElectricComponents.ID,
@@ -79,7 +79,7 @@ func main() {
 				}
 			}
 
-			err := b.CreateWarehouse(ctx, backend.CreateWarehouseInput{
+			err := b.WarehouseCreate(ctx, backend.WarehouseCreateInput{
 				Warehouse: backend.Warehouse{
 					Name:        "PT. " + faker.Word() + faker.Word(),
 					ImageURL:    "https://source.unsplash.com/random/800x800",
