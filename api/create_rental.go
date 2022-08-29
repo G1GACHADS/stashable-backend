@@ -3,12 +3,10 @@ package api
 import (
 	"errors"
 	"fmt"
-	"os"
+	"path/filepath"
 
 	"github.com/G1GACHADS/stashable-backend/backend"
-	"github.com/G1GACHADS/stashable-backend/core/logger"
 	"github.com/G1GACHADS/stashable-backend/core/mime"
-	"github.com/G1GACHADS/stashable-backend/core/nanoid"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slices"
 )
@@ -16,8 +14,6 @@ import (
 const maxImageUploads = 4
 
 var supportedImageTypes = []string{
-	"image/avif",
-	"image/bmp",
 	"image/jpeg",
 	"image/png",
 	"image/webp",
@@ -90,7 +86,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 			fmt.Sprintf("Maximum number of images is %d", maxImageUploads))
 	}
 
-	imageURLs := make([]string, len(form.File["images"]))
+	images := make([]backend.CreateRentalMediaInput, len(form.File["images"]))
 
 	for idx, image := range form.File["images"] {
 		file, err := image.Open()
@@ -106,13 +102,11 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 			})
 		}
 
-		fileName := nanoid.Next()
-		filePath := h.appCfg.UploadsPath + "/" + fileName + "." + image.Filename
-		if err := c.SaveFile(image, filePath); err != nil {
-			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+		images[idx] = backend.CreateRentalMediaInput{
+			File:          file,
+			FileHeader:    image,
+			FileExtension: filepath.Ext(image.Filename),
 		}
-
-		imageURLs[idx] = h.appCfg.Address + "/" + filePath
 	}
 
 	rentalID, err := h.backend.CreateRental(c.Context(), backend.CreateRentalInput{
@@ -120,7 +114,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		WarehouseID:  int64(warehouseID),
 		CategoryID:   params.CategoryID,
 		RoomID:       params.RoomID,
-		ImageURLs:    imageURLs,
+		Images:       images,
 		Description:  params.Description,
 		PaidAnnually: params.PaidAnnually,
 		Name:         params.Name,
@@ -132,21 +126,6 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		Type:         params.Type,
 	})
 	if err != nil {
-		go func(imageURLs []string) {
-			for _, imageURL := range imageURLs {
-				path := imageURL[len(h.appCfg.Address):]
-				wd, err := os.Getwd()
-				if err != nil {
-					logger.M.Warnf("failed removing %s: %v", imageURL, err)
-					continue
-				}
-
-				if err := os.Remove(wd + path); err != nil {
-					logger.M.Warnf("failed removing %s: %v", imageURL, err)
-				}
-			}
-		}(imageURLs)
-
 		if errors.Is(err, backend.ErrWarehouseOrCategoryOrRoomDoesNotExists) {
 			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}

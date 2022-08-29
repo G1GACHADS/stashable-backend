@@ -10,8 +10,9 @@ import (
 )
 
 type Clients struct {
-	DB    *pgxpool.Pool
-	Cache *redis.Client
+	DB      *pgxpool.Pool
+	Cache   *redis.Client
+	Storage *Cloudinary
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
@@ -40,6 +41,21 @@ func New(ctx context.Context, cfg *config.Config) (*Clients, error) {
 		opts.WriteTimeout = cfg.Clients.RedisWriteTimeout
 
 		c.Cache, err = NewRedisClient(ctx, opts)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	group.Go(func() error {
+		var err error
+
+		c.Storage, err = NewCloudinary(
+			cfg.Clients.CloudinaryCloudName,
+			cfg.Clients.CloudinaryAPIKey,
+			cfg.Clients.CloudinaryAPISecret,
+			cfg.Clients.CloudinaryUploadFolder)
 		if err != nil {
 			return err
 		}

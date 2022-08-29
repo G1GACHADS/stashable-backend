@@ -31,9 +31,21 @@ func main() {
 
 	b := backend.New(clients, config)
 
+	b.RegisterUser(ctx, backend.User{
+		FullName:    "John Doe",
+		Email:       "user@mail.com",
+		PhoneNumber: "0877824948548",
+		Password:    "123123",
+	}, backend.Address{
+		Province:   "Jawa Barat",
+		City:       "Bekasi",
+		StreetName: "Jl. Belibis VI",
+		ZipCode:    17421,
+	})
+
 	categoryChemical, _ := b.CreateCategory(ctx, "Chemical")
-	categoryElectricComponents, _ := b.CreateCategory(ctx, "Electric Components")
-	categoryFragileGlass, _ := b.CreateCategory(ctx, "Fragile / Glass")
+	categoryElectricComponents, _ := b.CreateCategory(ctx, "Electric")
+	categoryFragileGlass, _ := b.CreateCategory(ctx, "Fragile")
 	categoryHeavyMaterials, _ := b.CreateCategory(ctx, "Heavy Materials")
 	categories := []int64{
 		categoryChemical.ID,

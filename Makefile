@@ -18,6 +18,14 @@ stop: ## Stops the containers
 populate: ## runs db populate script
 	go run cmd/populate/goroutine_limiter.go cmd/populate/util.go cmd/populate/main.go
 
+db-migrate:
+	./hack/db/migrate_db.sh
+
+db-migrate-down:
+	./hack/db/migrate_db_down.sh
+
+db-refresh: db-migrate-down db-migrate populate ## runs db refresh script
+
 docker-clean: ## Cleans all
 	docker stop $$(docker ps -q)
 	docker rm $$(docker ps -a -f status=exited -q)

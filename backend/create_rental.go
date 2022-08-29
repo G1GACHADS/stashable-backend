@@ -3,14 +3,24 @@ package backend
 import (
 	"context"
 	"errors"
+	"mime/multipart"
+
+	"github.com/G1GACHADS/stashable-backend/core/nanoid"
+	"golang.org/x/sync/errgroup"
 )
+
+type CreateRentalMediaInput struct {
+	FileExtension string
+	File          multipart.File
+	FileHeader    *multipart.FileHeader
+}
 
 type CreateRentalInput struct {
 	UserID       int64
 	WarehouseID  int64
 	CategoryID   int64
 	RoomID       int64
-	ImageURLs    []string
+	Images       []CreateRentalMediaInput
 	Name         string
 	Description  string
 	Weight       float64
@@ -63,11 +73,16 @@ func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (in
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now(), $15)
 	RETURNING id`
 
+	imageURLs, err := b.uploadRentalMediaFiles(ctx, input.Images)
+	if err != nil {
+		return 0, err
+	}
+
 	args := []any{
 		input.UserID,
 		input.WarehouseID,
 		input.CategoryID,
-		input.ImageURLs,
+		imageURLs,
 		input.Name,
 		input.Description,
 		input.Weight,
@@ -83,8 +98,46 @@ func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (in
 
 	var rentalID int64
 	if err := b.clients.DB.QueryRow(ctx, query, args...).Scan(&rentalID); err != nil {
+		go b.deleteRentalMediaFiles(ctx, imageURLs)
 		return 0, err
 	}
 
 	return rentalID, nil
+}
+
+func (b *backend) uploadRentalMediaFiles(ctx context.Context, images []CreateRentalMediaInput) ([]string, error) {
+	var imageURLs []string
+	var group errgroup.Group
+
+	for _, image := range images {
+		image := image // https://go.dev/doc/faq#closures_and_goroutines
+		group.Go(func() error {
+			fileName := nanoid.Next(14) + image.FileExtension
+			imageURL, err := b.clients.Storage.Upload(ctx, image.File, fileName)
+			if err != nil {
+				return err
+			}
+
+			imageURLs = append(imageURLs, imageURL)
+			return nil
+		})
+	}
+
+	if err := group.Wait(); err != nil {
+		return nil, err
+	}
+
+	return imageURLs, nil
+}
+
+func (b *backend) deleteRentalMediaFiles(ctx context.Context, imageURLs []string) error {
+	var group errgroup.Group
+
+	for _, imageURL := range imageURLs {
+		group.Go(func() error {
+			return b.clients.Storage.Delete(ctx, imageURL)
+		})
+	}
+
+	return group.Wait()
 }

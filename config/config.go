@@ -20,6 +20,11 @@ type ClientsConfig struct {
 	RedisDB           int
 	RedisWriteTimeout time.Duration
 	RedisReadTimeout  time.Duration
+
+	CloudinaryCloudName    string
+	CloudinaryAPIKey       string
+	CloudinaryAPISecret    string
+	CloudinaryUploadFolder string
 }
 
 type Config struct {
@@ -42,11 +47,15 @@ func New() *Config {
 	c.Clients = ClientsConfig{
 		DatabaseURL: LookupEnv("DATABASE_URL", ""),
 
-		RedisAddress:      LookupEnv("REDIS_ADDRESS", "redis://127.0.0.1:6379"),
-		RedisPassword:     LookupEnv("REDIS_PASSWORD", ""),
-		RedisDB:           LookupEnv("REDIS_DB", 0),
-		RedisWriteTimeout: LookupEnv("REDIS_WRITE_TIMEOUT", time.Second),
-		RedisReadTimeout:  LookupEnv("REDIS_READ_TIMEOUT", time.Second),
+		RedisAddress:           LookupEnv("REDIS_ADDRESS", "redis://127.0.0.1:6379"),
+		RedisPassword:          LookupEnv("REDIS_PASSWORD", ""),
+		RedisDB:                LookupEnv("REDIS_DB", 0),
+		RedisWriteTimeout:      LookupEnv("REDIS_WRITE_TIMEOUT", time.Second),
+		RedisReadTimeout:       LookupEnv("REDIS_READ_TIMEOUT", time.Second),
+		CloudinaryCloudName:    LookupEnv("CLOUDINARY_CLOUD_NAME", ""),
+		CloudinaryAPIKey:       LookupEnv("CLOUDINARY_API_KEY", ""),
+		CloudinaryAPISecret:    LookupEnv("CLOUDINARY_API_SECRET", ""),
+		CloudinaryUploadFolder: LookupEnv("CLOUDINARY_UPLOAD_FOLDER", "stashable"),
 	}
 
 	return &c

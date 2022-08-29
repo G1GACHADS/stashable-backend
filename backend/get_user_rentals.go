@@ -2,11 +2,7 @@ package backend
 
 import (
 	"context"
-	"fmt"
 	"time"
-
-	"github.com/G1GACHADS/stashable-backend/core/logger"
-	"github.com/bytedance/sonic"
 )
 
 type GetUserRentalsItemAttributes struct {
@@ -94,27 +90,5 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 		Items:      rentals,
 	}
 
-	go func(rentals GetUserRentalsOutput) {
-		cacheKey := fmt.Sprintf("user::rentals::%d", userID)
-		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
-			// Cache the warehouses for future use
-			out, _ := sonic.Marshal(rentals)
-			_, err := b.clients.Cache.Set(ctx, cacheKey, out, time.Hour).Result()
-			if err != nil {
-				logger.M.Warnf("failed to cache warehouses: %v", err)
-			}
-		}
-	}(out)
-
 	return out, nil
-}
-
-func (b *backend) GetUserRentalsFromCache(ctx context.Context, userID int64) (GetUserRentalsOutput, error) {
-	var rentals GetUserRentalsOutput
-	cacheKey := fmt.Sprintf("user::rentals::%d", userID)
-	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
-		out, _ := b.clients.Cache.Get(ctx, cacheKey).Result()
-		sonic.Unmarshal([]byte(out), &rentals)
-	}
-	return rentals, nil
 }
