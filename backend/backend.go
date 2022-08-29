@@ -13,28 +13,25 @@ type Backend interface {
 	RegisterUser(ctx context.Context, user User, address Address) (RegisterUserOutput, error)
 
 	// Profile
-	GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error)
-	GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error)
+	UserGetProfile(ctx context.Context, userID int64) (UserGetProfileOutput, error)
+	UserGetProfileFromCache(ctx context.Context, userID int64) (UserGetProfileOutput, error)
 
 	// Categories
-	CreateCategory(ctx context.Context, name string) (Category, error)
-	DeleteCategory(ctx context.Context, categoryID int64) error
+	CategoryCreate(ctx context.Context, name string) (Category, error)
+	CategoryDelete(ctx context.Context, categoryID int64) error
 
 	// Warehouses
-	ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error)
-	GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
-	GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error)
-	SearchWarehouses(ctx context.Context, searchQuery string, limit int, priceAscending bool) (SearchWarehousesOutput, error)
-	CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error
-	DeleteWarehouse(ctx context.Context, warehouseID int64) error
+	WarehouseList(ctx context.Context, limit int) (WarehouseListOutput, error)
+	WarehouseGet(ctx context.Context, warehouseID int64) (WarehouseGetOutput, error)
+	WarehouseGetFromCache(ctx context.Context, warehouseID int64) (WarehouseGetOutput, error)
+	WarehouseSearch(ctx context.Context, searchQuery string, limit int, priceAscending bool) (WarehouseSearchOutput, error)
+	WarehouseCreate(ctx context.Context, input WarehouseCreateInput) error
+	WarehouseDelete(ctx context.Context, warehouseID int64) error
 
 	// Rentals
-	GetUserRentals(ctx context.Context, userID int64) (GetUserRentalsOutput, error)
-	CreateRental(ctx context.Context, input CreateRentalInput) (int64, error)
-	UpdateRentalStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error
-
-	// Addresses
-	UpdateAddress(ctx context.Context, addressID int64) error
+	UserGetRentals(ctx context.Context, userID int64) (UserGetRentalsOutput, error)
+	RentalCreate(ctx context.Context, input RentalCreateInput) (int64, error)
+	RentalUpdateStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error
 }
 
 type backend struct {

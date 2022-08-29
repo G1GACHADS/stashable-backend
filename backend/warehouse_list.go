@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type ListWarehousesItem struct {
+type WarehouseListItem struct {
 	Attributes    Warehouse `json:"attributes"`
 	Relationships struct {
 		Address    Address  `json:"address"`
@@ -12,24 +12,24 @@ type ListWarehousesItem struct {
 	} `json:"relationships"`
 }
 
-type ListWarehousesOutput struct {
+type WarehouseListOutput struct {
 	TotalItems int                  `json:"total_items"`
-	Items      []ListWarehousesItem `json:"items"`
+	Items      []WarehouseListItem `json:"items"`
 }
 
-func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehousesOutput, error) {
-	var warehouses []ListWarehousesItem
+func (b *backend) WarehouseList(ctx context.Context, limit int) (WarehouseListOutput, error) {
+	var warehouses []WarehouseListItem
 
 	rows, err := b.clients.DB.Query(ctx, "SELECT * FROM warehouses_list LIMIT $1", limit)
 	if err != nil {
-		return ListWarehousesOutput{}, err
+		return WarehouseListOutput{}, err
 	}
 	defer rows.Close()
 
 	var count int
 
 	for rows.Next() {
-		var row ListWarehousesItem
+		var row WarehouseListItem
 		err := rows.Scan(
 			&count,
 			&row.Attributes.ID,
@@ -50,12 +50,12 @@ func (b *backend) ListWarehouses(ctx context.Context, limit int) (ListWarehouses
 			&row.Relationships.Categories,
 		)
 		if err != nil {
-			return ListWarehousesOutput{}, err
+			return WarehouseListOutput{}, err
 		}
 		warehouses = append(warehouses, row)
 	}
 
-	return ListWarehousesOutput{
+	return WarehouseListOutput{
 		TotalItems: count,
 		Items:      warehouses,
 	}, nil

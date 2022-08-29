@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type CreateWarehouseParamsRoom struct {
+type WarehouseCreateParamsRoom struct {
 	ImageURL string  `json:"image_url"`
 	Name     string  `json:"name"`
 	Width    float64 `json:"width"`
@@ -18,7 +18,7 @@ type CreateWarehouseParamsRoom struct {
 	Price    float64 `json:"price"`
 }
 
-type CreateWarehouseParams struct {
+type WarehouseCreateParams struct {
 	Name        string  `json:"name"`
 	ImageURL    string  `json:"image_url"`
 	Description string  `json:"description"`
@@ -31,11 +31,11 @@ type CreateWarehouseParams struct {
 	StreetName string `json:"street_name"`
 	ZipCode    int    `json:"zip_code"`
 
-	Rooms       []CreateWarehouseParamsRoom `json:"rooms"`
+	Rooms       []WarehouseCreateParamsRoom `json:"rooms"`
 	CategoryIDs []int64                     `json:"categories"`
 }
 
-func (p CreateWarehouseParams) Validate() error {
+func (p WarehouseCreateParams) Validate() error {
 	if err := requiredFields(map[string]any{
 		"name":         p.Name,
 		"image_url":    p.ImageURL,
@@ -79,10 +79,10 @@ func (p CreateWarehouseParams) Validate() error {
 	return nil
 }
 
-func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
+func (h *handler) WarehouseCreate(c *fiber.Ctx) error {
 	c.Accepts("application/json")
 
-	var params CreateWarehouseParams
+	var params WarehouseCreateParams
 
 	if err := c.BodyParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
@@ -104,7 +104,7 @@ func (h *handler) CreateWarehouse(c *fiber.Ctx) error {
 		}
 	}
 
-	err := h.backend.CreateWarehouse(c.Context(), backend.CreateWarehouseInput{
+	err := h.backend.WarehouseCreate(c.Context(), backend.WarehouseCreateInput{
 		Warehouse: backend.Warehouse{
 			Name:        params.Name,
 			ImageURL:    params.ImageURL,

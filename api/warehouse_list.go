@@ -6,18 +6,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *handler) SearchWarehouses(c *fiber.Ctx) error {
-	searchQuery := c.Query("q")
-	priceAsc := c.Query("order_by") == "asc"
+func (h *handler) WarehouseList(c *fiber.Ctx) error {
 	limit, err := strconv.Atoi(c.Query("limit", "20"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid limit")
 	}
 
-	searchResult, err := h.backend.SearchWarehouses(c.Context(), searchQuery, limit, priceAsc)
+	warehouses, err := h.backend.WarehouseList(c.Context(), limit)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(searchResult)
+	return c.Status(fiber.StatusOK).JSON(warehouses)
 }

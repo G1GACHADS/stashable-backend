@@ -7,11 +7,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type CreateCategoryParams struct {
+type CategoryCreateParams struct {
 	Name string `json:"name"`
 }
 
-func (p CreateCategoryParams) Validate() error {
+func (p CategoryCreateParams) Validate() error {
 	if p.Name == "" {
 		return errors.New("name is required")
 	}
@@ -19,10 +19,10 @@ func (p CreateCategoryParams) Validate() error {
 	return nil
 }
 
-func (h *handler) CreateCategory(c *fiber.Ctx) error {
+func (h *handler) CategoryCreate(c *fiber.Ctx) error {
 	c.Accepts("application/json")
 
-	var params CreateCategoryParams
+	var params CategoryCreateParams
 
 	if err := c.BodyParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
@@ -32,7 +32,7 @@ func (h *handler) CreateCategory(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
-	createdCategory, err := h.backend.CreateCategory(c.Context(), params.Name)
+	createdCategory, err := h.backend.CategoryCreate(c.Context(), params.Name)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 	}
@@ -43,13 +43,13 @@ func (h *handler) CreateCategory(c *fiber.Ctx) error {
 	})
 }
 
-func (h *handler) DeleteCategory(c *fiber.Ctx) error {
+func (h *handler) CategoryDelete(c *fiber.Ctx) error {
 	categoryID, err := c.ParamsInt("id")
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid category id")
 	}
 
-	err = h.backend.DeleteCategory(c.Context(), int64(categoryID))
+	err = h.backend.CategoryDelete(c.Context(), int64(categoryID))
 	switch {
 	case errors.Is(err, backend.ErrCategoryDoesNotExists):
 		return fiber.NewError(fiber.StatusNotFound, err.Error())

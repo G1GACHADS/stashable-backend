@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func (b *backend) DeleteWarehouse(ctx context.Context, warehouseID int64) error {
+func (b *backend) WarehouseDelete(ctx context.Context, warehouseID int64) error {
 	var addressID int64
 	err := b.clients.DB.QueryRow(ctx, "SELECT address_id FROM warehouses WHERE id = $1", warehouseID).Scan(&addressID)
 	if err != nil {

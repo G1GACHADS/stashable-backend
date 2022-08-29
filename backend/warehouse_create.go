@@ -9,14 +9,14 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-type CreateWarehouseInput struct {
+type WarehouseCreateInput struct {
 	Warehouse   Warehouse
 	Address     Address
 	Rooms       []Room
 	CategoryIDs []int64
 }
 
-func (b *backend) CreateWarehouse(ctx context.Context, input CreateWarehouseInput) error {
+func (b *backend) WarehouseCreate(ctx context.Context, input WarehouseCreateInput) error {
 	tx, err := b.clients.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (b *backend) checkIfCategoryIDsExists(ctx context.Context, tx pgx.Tx, ids [
 	return nil
 }
 
-func (b *backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input CreateWarehouseInput) (int64, error) {
+func (b *backend) insertAddressAndWarehouse(ctx context.Context, tx pgx.Tx, input WarehouseCreateInput) (int64, error) {
 	var addressID int64
 	err := tx.QueryRow(ctx, "INSERT INTO addresses (province, city, street_name, zip_code) VALUES ($1, $2, $3, $4) RETURNING id",
 		input.Address.Province,

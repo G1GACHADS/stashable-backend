@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type SearchWarehousesItem struct {
+type WarehouseSearchItem struct {
 	Attributes    Warehouse `json:"attributes"`
 	Relationships struct {
 		Address    Address  `json:"address"`
@@ -12,24 +12,24 @@ type SearchWarehousesItem struct {
 	} `json:"relationships"`
 }
 
-type SearchWarehousesOutput struct {
+type WarehouseSearchOutput struct {
 	TotalItems int                    `json:"total_items"`
-	Items      []SearchWarehousesItem `json:"items"`
+	Items      []WarehouseSearchItem `json:"items"`
 }
 
-func (b *backend) SearchWarehouses(ctx context.Context, searchQuery string, limit int, priceAscending bool) (SearchWarehousesOutput, error) {
+func (b *backend) WarehouseSearch(ctx context.Context, searchQuery string, limit int, priceAscending bool) (WarehouseSearchOutput, error) {
 	sql := b.makeSearchWarehouseQuery(priceAscending)
 
 	rows, err := b.clients.DB.Query(ctx, sql, searchQuery, limit)
 	if err != nil {
-		return SearchWarehousesOutput{}, err
+		return WarehouseSearchOutput{}, err
 	}
 	defer rows.Close()
 
-	var warehouses []SearchWarehousesItem
+	var warehouses []WarehouseSearchItem
 
 	for rows.Next() {
-		var row SearchWarehousesItem
+		var row WarehouseSearchItem
 		err := rows.Scan(
 			&row.Attributes.ID,
 			&row.Attributes.AddressID,
@@ -48,12 +48,12 @@ func (b *backend) SearchWarehouses(ctx context.Context, searchQuery string, limi
 			&row.Relationships.Categories,
 		)
 		if err != nil {
-			return SearchWarehousesOutput{}, err
+			return WarehouseSearchOutput{}, err
 		}
 		warehouses = append(warehouses, row)
 	}
 
-	return SearchWarehousesOutput{
+	return WarehouseSearchOutput{
 		TotalItems: len(warehouses),
 		Items:      warehouses,
 	}, nil

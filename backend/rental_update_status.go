@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func (b *backend) UpdateRentalStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error {
+func (b *backend) RentalUpdateStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error {
 	var dbUserID int64
 	err := b.clients.DB.QueryRow(ctx, "SELECT user_id FROM rentals WHERE id = $1", rentalID).Scan(&dbUserID)
 	if err != nil {

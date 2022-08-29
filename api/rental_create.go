@@ -19,7 +19,7 @@ var supportedImageTypes = []string{
 	"image/webp",
 }
 
-type CreateRentalParams struct {
+type RentalCreateParams struct {
 	Name         string             `form:"name"`
 	Description  string             `form:"description"`
 	Weight       float64            `form:"weight"`
@@ -33,7 +33,7 @@ type CreateRentalParams struct {
 	RoomID       int64              `form:"room_id"`
 }
 
-func (p CreateRentalParams) Validate() error {
+func (p RentalCreateParams) Validate() error {
 	if err := requiredFields(map[string]any{
 		"name":        p.Name,
 		"description": p.Description,
@@ -58,7 +58,7 @@ func (p CreateRentalParams) Validate() error {
 	return nil
 }
 
-func (h *handler) CreateRental(c *fiber.Ctx) error {
+func (h *handler) RentalCreate(c *fiber.Ctx) error {
 	c.Accepts(fiber.MIMEMultipartForm)
 
 	userID := int64(c.Locals("userID").(float64))
@@ -67,7 +67,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Please provide a valid warehouse id")
 	}
 
-	var params CreateRentalParams
+	var params RentalCreateParams
 	if err := c.BodyParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -86,7 +86,7 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 			fmt.Sprintf("Maximum number of images is %d", maxImageUploads))
 	}
 
-	images := make([]backend.CreateRentalMediaInput, len(form.File["images"]))
+	images := make([]backend.RentalCreateMediaInput, len(form.File["images"]))
 
 	for idx, image := range form.File["images"] {
 		file, err := image.Open()
@@ -102,14 +102,14 @@ func (h *handler) CreateRental(c *fiber.Ctx) error {
 			})
 		}
 
-		images[idx] = backend.CreateRentalMediaInput{
+		images[idx] = backend.RentalCreateMediaInput{
 			File:          file,
 			FileHeader:    image,
 			FileExtension: filepath.Ext(image.Filename),
 		}
 	}
 
-	rentalID, err := h.backend.CreateRental(c.Context(), backend.CreateRentalInput{
+	rentalID, err := h.backend.RentalCreate(c.Context(), backend.RentalCreateInput{
 		UserID:       userID,
 		WarehouseID:  int64(warehouseID),
 		CategoryID:   params.CategoryID,

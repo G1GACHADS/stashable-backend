@@ -61,34 +61,34 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 	app.Post("/auth/register", h.RegisterUser)
 
 	// profile
-	app.Get("/profile", middleware.Authenticated, h.GetUserProfile)
+	app.Get("/profile", middleware.Authenticated, h.UserGetProfile)
 
 	// Categories
-	app.Post("/categories", middleware.Authenticated, h.CreateCategory)
-	app.Delete("/categories/:id", middleware.Authenticated, h.DeleteCategory)
+	app.Post("/categories", middleware.Authenticated, h.CategoryCreate)
+	app.Delete("/categories/:id", middleware.Authenticated, h.CategoryDelete)
 
 	// Warehouse routes
-	app.Get("/warehouses", h.ListWarehouses)
-	app.Get("/warehouses/search", h.SearchWarehouses)
-	app.Get("/warehouses/:id", h.GetWarehouse)
-	app.Post("/warehouses", middleware.Authenticated, h.CreateWarehouse)
-	app.Delete("/warehouses/:id", middleware.Authenticated, h.DeleteWarehouse)
+	app.Get("/warehouses", h.WarehouseList)
+	app.Get("/warehouses/search", h.WarehouseSearch)
+	app.Get("/warehouses/:id", h.WarehouseGet)
+	app.Post("/warehouses", middleware.Authenticated, h.WarehouseCreate)
+	app.Delete("/warehouses/:id", middleware.Authenticated, h.WarehouseDelete)
 
 	// Rentals
-	app.Get("/rent/history", middleware.Authenticated, h.GetUserRentals)
-	app.Post("/rent/:warehouseID", middleware.Authenticated, h.CreateRental)
+	app.Get("/rent/history", middleware.Authenticated, h.UserGetRentals)
+	app.Post("/rent/:warehouseID", middleware.Authenticated, h.RentalCreate)
 
 	app.Patch("/rent/:id/pay",
 		middleware.Authenticated,
-		h.CreateUpdateRentalStatusHandler(backend.RentalStatusPaid))
+		h.CreateRentalUpdateStatus(backend.RentalStatusPaid))
 
 	app.Patch("/rent/:id/cancel",
 		middleware.Authenticated,
-		h.CreateUpdateRentalStatusHandler(backend.RentalStatusCancelled))
+		h.CreateRentalUpdateStatus(backend.RentalStatusCancelled))
 
 	app.Patch("/rent/:id/return",
 		middleware.Authenticated,
-		h.CreateUpdateRentalStatusHandler(backend.RentalStatusReturned))
+		h.CreateRentalUpdateStatus(backend.RentalStatusReturned))
 
 	return app
 }

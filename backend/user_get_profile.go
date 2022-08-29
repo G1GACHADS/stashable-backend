@@ -9,15 +9,15 @@ import (
 	"github.com/bytedance/sonic"
 )
 
-type GetUserProfileOutput struct {
+type UserGetProfileOutput struct {
 	Attributes    User `json:"attributes"`
 	Relationships struct {
 		Address `json:"address"`
 	} `json:"relationships"`
 }
 
-func (b *backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
-	var out GetUserProfileOutput
+func (b *backend) UserGetProfile(ctx context.Context, userID int64) (UserGetProfileOutput, error) {
+	var out UserGetProfileOutput
 
 	query := `
 	SELECT
@@ -46,11 +46,11 @@ func (b *backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProf
 		&out.Relationships.Address.ZipCode,
 	)
 	if err != nil {
-		return GetUserProfileOutput{}, err
+		return UserGetProfileOutput{}, err
 	}
 
 	// Cache the profile for future use
-	go func(profile GetUserProfileOutput) {
+	go func(profile UserGetProfileOutput) {
 		cacheKey := fmt.Sprintf("profile::%d", out.Attributes.ID)
 		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
 			out, _ := sonic.Marshal(profile)
@@ -65,8 +65,8 @@ func (b *backend) GetUserProfile(ctx context.Context, userID int64) (GetUserProf
 	return out, nil
 }
 
-func (b *backend) GetUserProfileFromCache(ctx context.Context, userID int64) (GetUserProfileOutput, error) {
-	var profile GetUserProfileOutput
+func (b *backend) UserGetProfileFromCache(ctx context.Context, userID int64) (UserGetProfileOutput, error) {
+	var profile UserGetProfileOutput
 	cacheKey := fmt.Sprintf("profile::%d", userID)
 	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
 		out, _ := b.clients.Cache.Get(ctx, cacheKey).Result()

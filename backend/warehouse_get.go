@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-type GetWarehouseOutput struct {
+type WarehouseGetOutput struct {
 	Attributes    Warehouse `json:"attributes"`
 	Relationships struct {
 		Address    Address  `json:"address"`
@@ -19,8 +19,8 @@ type GetWarehouseOutput struct {
 	} `json:"relationships"`
 }
 
-func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
-	var warehouse GetWarehouseOutput
+func (b *backend) WarehouseGet(ctx context.Context, warehouseID int64) (WarehouseGetOutput, error) {
+	var warehouse WarehouseGetOutput
 
 	err := b.clients.DB.QueryRow(ctx, "SELECT * FROM warehouses_list WHERE w_id = $1", warehouseID).Scan(
 		nil,
@@ -43,14 +43,14 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return GetWarehouseOutput{}, ErrWarehouseDoesNotExists
+			return WarehouseGetOutput{}, ErrWarehouseDoesNotExists
 		}
-		return GetWarehouseOutput{}, err
+		return WarehouseGetOutput{}, err
 	}
 
 	rows, err := b.clients.DB.Query(ctx, "SELECT * FROM rooms WHERE warehouse_id = $1", warehouseID)
 	if err != nil {
-		return GetWarehouseOutput{}, err
+		return WarehouseGetOutput{}, err
 	}
 	defer rows.Close()
 
@@ -66,13 +66,13 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 			&room.Length,
 			&room.Price)
 		if err != nil {
-			return GetWarehouseOutput{}, err
+			return WarehouseGetOutput{}, err
 		}
 
 		warehouse.Relationships.Rooms = append(warehouse.Relationships.Rooms, room)
 	}
 
-	go func(warehouse GetWarehouseOutput) {
+	go func(warehouse WarehouseGetOutput) {
 		cacheKey := fmt.Sprintf("warehouses::%d", warehouseID)
 		if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists != 1 {
 			// Cache the warehouses for future use
@@ -87,8 +87,8 @@ func (b *backend) GetWarehouse(ctx context.Context, warehouseID int64) (GetWareh
 	return warehouse, nil
 }
 
-func (b *backend) GetWarehouseFromCache(ctx context.Context, warehouseID int64) (GetWarehouseOutput, error) {
-	var warehouse GetWarehouseOutput
+func (b *backend) WarehouseGetFromCache(ctx context.Context, warehouseID int64) (WarehouseGetOutput, error) {
+	var warehouse WarehouseGetOutput
 	cacheKey := fmt.Sprintf("warehouses::%d", warehouseID)
 	if exists, _ := b.clients.Cache.Exists(ctx, cacheKey).Result(); exists == 1 {
 		out, _ := b.clients.Cache.Get(ctx, cacheKey).Result()

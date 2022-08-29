@@ -9,18 +9,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type CreateRentalMediaInput struct {
+type RentalCreateMediaInput struct {
 	FileExtension string
 	File          multipart.File
 	FileHeader    *multipart.FileHeader
 }
 
-type CreateRentalInput struct {
+type RentalCreateInput struct {
 	UserID       int64
 	WarehouseID  int64
 	CategoryID   int64
 	RoomID       int64
-	Images       []CreateRentalMediaInput
+	Images       []RentalCreateMediaInput
 	Name         string
 	Description  string
 	Weight       float64
@@ -34,7 +34,7 @@ type CreateRentalInput struct {
 
 var ErrWarehouseOrCategoryOrRoomDoesNotExists = errors.New("warehouse or category or room does not exists")
 
-func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (int64, error) {
+func (b *backend) RentalCreate(ctx context.Context, input RentalCreateInput) (int64, error) {
 	existsQuery := `
 	SELECT EXISTS (SELECT 1 FROM warehouses WHERE id = $1) AND
 		   EXISTS (SELECT 1 FROM categories WHERE id = $2) AND
@@ -105,7 +105,7 @@ func (b *backend) CreateRental(ctx context.Context, input CreateRentalInput) (in
 	return rentalID, nil
 }
 
-func (b *backend) uploadRentalMediaFiles(ctx context.Context, images []CreateRentalMediaInput) ([]string, error) {
+func (b *backend) uploadRentalMediaFiles(ctx context.Context, images []RentalCreateMediaInput) ([]string, error) {
 	var imageURLs []string
 	var group errgroup.Group
 

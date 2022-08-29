@@ -5,24 +5,24 @@ import (
 	"time"
 )
 
-type GetUserRentalsItemAttributes struct {
+type UserGetRentalsItemAttributes struct {
 	Rental
 	PaymentDue time.Time `json:"payment_due"`
 }
 
-type GetUserRentalsItem struct {
-	Attributes    GetUserRentalsItemAttributes `json:"attributes"`
+type UserGetRentalsItem struct {
+	Attributes    UserGetRentalsItemAttributes `json:"attributes"`
 	Relationships struct {
 		Warehouse Warehouse `json:"warehouse"`
 	} `json:"relationships"`
 }
 
-type GetUserRentalsOutput struct {
+type UserGetRentalsOutput struct {
 	TotalItems int                  `json:"total_items"`
-	Items      []GetUserRentalsItem `json:"items"`
+	Items      []UserGetRentalsItem `json:"items"`
 }
 
-func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRentalsOutput, error) {
+func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRentalsOutput, error) {
 	query := `
 	SELECT
 		r.*,
@@ -31,16 +31,16 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 	LEFT JOIN warehouses AS w ON r.warehouse_id = w.id
 	WHERE r.user_id = $1`
 
-	var rentals []GetUserRentalsItem
+	var rentals []UserGetRentalsItem
 
 	rows, err := b.clients.DB.Query(ctx, query, userID)
 	if err != nil {
-		return GetUserRentalsOutput{}, nil
+		return UserGetRentalsOutput{}, nil
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var rental GetUserRentalsItem
+		var rental UserGetRentalsItem
 		err = rows.Scan(
 			&rental.Attributes.ID,
 			&rental.Attributes.UserID,
@@ -71,7 +71,7 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 			&rental.Relationships.Warehouse.RoomsCount,
 		)
 		if err != nil {
-			return GetUserRentalsOutput{}, err
+			return UserGetRentalsOutput{}, err
 		}
 
 		if rental.Attributes.PaidAnnually {
@@ -85,7 +85,7 @@ func (b *backend) GetUserRentals(ctx context.Context, userID int64) (GetUserRent
 		rentals = append(rentals, rental)
 	}
 
-	out := GetUserRentalsOutput{
+	out := UserGetRentalsOutput{
 		TotalItems: len(rentals),
 		Items:      rentals,
 	}
