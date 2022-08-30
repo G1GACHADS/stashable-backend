@@ -1,8 +1,8 @@
 BEGIN;
-CREATE TABLE IF NOT EXISTS "rental_types" ("name" varchar(18) NOT NULL PRIMARY KEY);
-INSERT INTO "rental_types" ("name")
-VALUES ('self-storage'),
-    ('disposal');
+CREATE TABLE IF NOT EXISTS "shipping_types" ("name" varchar(18) NOT NULL PRIMARY KEY);
+INSERT INTO "shipping_types" ("name")
+VALUES ('self-service'),
+    ('delivery');
 CREATE TABLE IF NOT EXISTS "rental_statuses" ("name" varchar(36) NOT NULL PRIMARY KEY);
 INSERT INTO "rental_statuses" ("name")
 VALUES ('unpaid'),
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "rentals" (
     "quantity" int DEFAULT 1 NOT NULL,
     -- if true, then the price is paid annually, otherwise monthly
     "paid_annually" boolean NOT NULL DEFAULT false,
-    "type" varchar(18) NOT NULL REFERENCES "rental_types" ("name") ON DELETE CASCADE ON UPDATE CASCADE DEFAULT 'self-storage',
+    "shipping_type" varchar(18) NOT NULL REFERENCES "shipping_types" ("name") ON DELETE CASCADE ON UPDATE CASCADE DEFAULT 'self-storage',
     "status" varchar(36) NOT NULL REFERENCES "rental_statuses" ("name") ON DELETE CASCADE ON UPDATE CASCADE DEFAULT 'pending',
     "created_at" timestamp(0) without time zone NOT NULL
 );

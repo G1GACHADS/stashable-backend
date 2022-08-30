@@ -47,11 +47,11 @@ type Room struct {
 	Price       float64 `json:"price"`
 }
 
-type RentalType string
+type RentalShippingType string
 
 const (
-	RentalSelfStorage RentalType = "self-storage"
-	RentalDisposal    RentalType = "disposal"
+	RentalSelfServiceShipping RentalShippingType = "self-service"
+	RentalDeliveryShipping    RentalShippingType = "delivery"
 )
 
 type RentalStatus string
@@ -78,7 +78,7 @@ type Rental struct {
 	Length       float64      `json:"length"`
 	Quantity     int          `json:"quantity"`
 	PaidAnnually bool         `json:"paid_annually"`
-	Type         RentalType   `json:"type"`
+	Type         RentalShippingType   `json:"type"`
 	Status       RentalStatus `json:"status"`
 	CreatedAt    time.Time    `json:"created_at"`
 }

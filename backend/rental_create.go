@@ -29,7 +29,7 @@ type RentalCreateInput struct {
 	Length       float64
 	Quantity     int
 	PaidAnnually bool
-	Type         RentalType
+	ShippingType RentalShippingType
 }
 
 var ErrWarehouseOrCategoryOrRoomDoesNotExists = errors.New("warehouse or category or room does not exists")
@@ -65,7 +65,7 @@ func (b *backend) RentalCreate(ctx context.Context, input RentalCreateInput) (in
 		height,
 		quantity,
 		paid_annually,
-		type,
+		shipping_type,
 		status,
 		created_at,
 		room_id
@@ -91,7 +91,7 @@ func (b *backend) RentalCreate(ctx context.Context, input RentalCreateInput) (in
 		input.Height,
 		input.Quantity,
 		input.PaidAnnually,
-		input.Type,
+		input.ShippingType,
 		RentalStatusUnpaid,
 		input.RoomID,
 	}

@@ -20,38 +20,38 @@ var supportedImageTypes = []string{
 }
 
 type RentalCreateParams struct {
-	Name         string             `form:"name"`
-	Description  string             `form:"description"`
-	Weight       float64            `form:"weight"`
-	Width        float64            `form:"width"`
-	Height       float64            `form:"height"`
-	Length       float64            `form:"length"`
-	Quantity     int                `form:"quantity"`
-	PaidAnnually bool               `form:"paid_annually"`
-	Type         backend.RentalType `form:"type"`
-	CategoryID   int64              `form:"category_id"`
-	RoomID       int64              `form:"room_id"`
+	Name         string                     `form:"name"`
+	Description  string                     `form:"description"`
+	Weight       float64                    `form:"weight"`
+	Width        float64                    `form:"width"`
+	Height       float64                    `form:"height"`
+	Length       float64                    `form:"length"`
+	Quantity     int                        `form:"quantity"`
+	PaidAnnually bool                       `form:"paid_annually"`
+	ShippingType backend.RentalShippingType `form:"shipping_type"`
+	CategoryID   int64                      `form:"category_id"`
+	RoomID       int64                      `form:"room_id"`
 }
 
 func (p RentalCreateParams) Validate() error {
 	if err := requiredFields(map[string]any{
-		"name":        p.Name,
-		"description": p.Description,
-		"weight":      p.Weight,
-		"width":       p.Width,
-		"height":      p.Height,
-		"length":      p.Length,
-		"quantity":    p.Quantity,
-		"type":        p.Type,
-		"category_id": p.CategoryID,
-		"room_id":     p.RoomID,
+		"name":          p.Name,
+		"description":   p.Description,
+		"weight":        p.Weight,
+		"width":         p.Width,
+		"height":        p.Height,
+		"length":        p.Length,
+		"quantity":      p.Quantity,
+		"shipping_type": p.ShippingType,
+		"category_id":   p.CategoryID,
+		"room_id":       p.RoomID,
 	}); err != nil {
 		return err
 	}
 
-	if !slices.Contains([]backend.RentalType{
-		backend.RentalSelfStorage,
-		backend.RentalDisposal}, p.Type) {
+	if !slices.Contains([]backend.RentalShippingType{
+		backend.RentalSelfServiceShipping,
+		backend.RentalDeliveryShipping}, p.ShippingType) {
 		return errors.New("invalid rental type (valid => 'self-storage' or 'disposal')")
 	}
 
@@ -123,7 +123,7 @@ func (h *handler) RentalCreate(c *fiber.Ctx) error {
 		Height:       params.Height,
 		Length:       params.Length,
 		Quantity:     params.Quantity,
-		Type:         params.Type,
+		ShippingType: params.ShippingType,
 	})
 	if err != nil {
 		if errors.Is(err, backend.ErrWarehouseOrCategoryOrRoomDoesNotExists) {
