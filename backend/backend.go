@@ -30,6 +30,7 @@ type Backend interface {
 
 	// Rentals
 	UserGetRentals(ctx context.Context, userID int64) (UserGetRentalsOutput, error)
+	RentalGet(ctx context.Context, userID, rentalID int64) (RentalGetOutput, error)
 	RentalCreate(ctx context.Context, input RentalCreateInput) (int64, error)
 	RentalUpdateStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error
 }

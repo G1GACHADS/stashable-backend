@@ -71,6 +71,7 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 
 	// Rentals
 	app.Get("/rent/history", middleware.Authenticated, h.UserGetRentals)
+	app.Get("/rent/history/:id", middleware.Authenticated, h.RentalGet)
 	app.Post("/rent/:warehouseID", middleware.Authenticated, h.RentalCreate)
 
 	app.Patch("/rent/:id/pay",

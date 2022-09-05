@@ -13,7 +13,9 @@ type UserGetRentalsItemAttributes struct {
 type UserGetRentalsItem struct {
 	Attributes    UserGetRentalsItemAttributes `json:"attributes"`
 	Relationships struct {
-		Warehouse Warehouse `json:"warehouse"`
+		Warehouse  Warehouse `json:"warehouse"`
+		Address    Address   `json:"address"`
+		Categories []string  `json:"categories"`
 	} `json:"relationships"`
 }
 
@@ -28,7 +30,7 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 		r.*,
 		w.*
 	FROM rentals r
-	LEFT JOIN warehouses AS w ON r.warehouse_id = w.id
+	LEFT JOIN warehouses_list w ON w.w_id = r.warehouse_id
 	WHERE r.user_id = $1`
 
 	var rentals []UserGetRentalsItem
@@ -59,6 +61,7 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 			&rental.Attributes.Status,
 			&rental.Attributes.CreatedAt,
 			&rental.Attributes.RoomID,
+			nil, // warehouse count
 			&rental.Relationships.Warehouse.ID,
 			&rental.Relationships.Warehouse.AddressID,
 			&rental.Relationships.Warehouse.Name,
@@ -69,6 +72,12 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 			&rental.Relationships.Warehouse.PhoneNumber,
 			&rental.Relationships.Warehouse.CreatedAt,
 			&rental.Relationships.Warehouse.RoomsCount,
+			&rental.Relationships.Address.ID,
+			&rental.Relationships.Address.Province,
+			&rental.Relationships.Address.City,
+			&rental.Relationships.Address.StreetName,
+			&rental.Relationships.Address.ZipCode,
+			&rental.Relationships.Categories,
 		)
 		if err != nil {
 			return UserGetRentalsOutput{}, err
