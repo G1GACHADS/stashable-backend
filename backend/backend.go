@@ -27,6 +27,7 @@ type Backend interface {
 	WarehouseSearch(ctx context.Context, searchQuery string, limit int, priceAscending bool) (WarehouseSearchOutput, error)
 	WarehouseCreate(ctx context.Context, input WarehouseCreateInput) error
 	WarehouseDelete(ctx context.Context, warehouseID int64) error
+	RoomGet(ctx context.Context, roomID int64) (RoomGetOutput, error)
 
 	// Rentals
 	UserGetRentals(ctx context.Context, userID int64) (UserGetRentalsOutput, error)
