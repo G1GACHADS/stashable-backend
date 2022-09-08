@@ -19,12 +19,11 @@ type WarehouseCreateParamsRoom struct {
 }
 
 type WarehouseCreateParams struct {
-	Name        string  `json:"name"`
-	ImageURL    string  `json:"image_url"`
-	Description string  `json:"description"`
-	BasePrice   float64 `json:"base_price"`
-	Email       string  `json:"email"`
-	PhoneNumber string  `json:"phone_number"`
+	Name        string `json:"name"`
+	ImageURL    string `json:"image_url"`
+	Description string `json:"description"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
 
 	Province   string `json:"province"`
 	City       string `json:"city"`
@@ -40,7 +39,6 @@ func (p WarehouseCreateParams) Validate() error {
 		"name":         p.Name,
 		"image_url":    p.ImageURL,
 		"description":  p.Description,
-		"base_price":   p.BasePrice,
 		"email":        p.Email,
 		"phone_number": p.PhoneNumber,
 		"province":     p.Province,
@@ -109,7 +107,7 @@ func (h *handler) WarehouseCreate(c *fiber.Ctx) error {
 			Name:        params.Name,
 			ImageURL:    params.ImageURL,
 			Description: params.Description,
-			BasePrice:   params.BasePrice,
+			BasePrice:   rooms[0].Price,
 			Email:       params.Email,
 			PhoneNumber: params.PhoneNumber,
 		},

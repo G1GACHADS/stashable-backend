@@ -13,7 +13,7 @@ type WarehouseSearchItem struct {
 }
 
 type WarehouseSearchOutput struct {
-	TotalItems int                    `json:"total_items"`
+	TotalItems int                   `json:"total_items"`
 	Items      []WarehouseSearchItem `json:"items"`
 }
 

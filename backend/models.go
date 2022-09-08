@@ -20,11 +20,12 @@ var (
 )
 
 type Warehouse struct {
-	ID          int64     `json:"id"`
-	AddressID   int64     `json:"address_id"`
-	Name        string    `json:"name"`
-	ImageURL    string    `json:"image_url"`
-	Description string    `json:"description"`
+	ID          int64  `json:"id"`
+	AddressID   int64  `json:"address_id"`
+	Name        string `json:"name"`
+	ImageURL    string `json:"image_url"`
+	Description string `json:"description"`
+	// BasePrice is the first room's price
 	BasePrice   float64   `json:"base_price"`
 	Email       string    `json:"email"`
 	PhoneNumber string    `json:"phone_number"`
@@ -64,23 +65,23 @@ const (
 )
 
 type Rental struct {
-	ID           int64        `json:"id"`
-	UserID       int64        `json:"user_id"`
-	WarehouseID  int64        `json:"warehouse_id"`
-	RoomID       int64        `json:"room_id"`
-	CategoryID   int64        `json:"category_id"`
-	ImageURLs    []string     `json:"image_urls"`
-	Name         string       `json:"name"`
-	Description  string       `json:"description"`
-	Weight       float64      `json:"weight"`
-	Width        float64      `json:"width"`
-	Height       float64      `json:"height"`
-	Length       float64      `json:"length"`
-	Quantity     int          `json:"quantity"`
-	PaidAnnually bool         `json:"paid_annually"`
-	Type         RentalShippingType   `json:"type"`
-	Status       RentalStatus `json:"status"`
-	CreatedAt    time.Time    `json:"created_at"`
+	ID           int64              `json:"id"`
+	UserID       int64              `json:"user_id"`
+	WarehouseID  int64              `json:"warehouse_id"`
+	RoomID       int64              `json:"room_id"`
+	CategoryID   int64              `json:"category_id"`
+	ImageURLs    []string           `json:"image_urls"`
+	Name         string             `json:"name"`
+	Description  string             `json:"description"`
+	Weight       float64            `json:"weight"`
+	Width        float64            `json:"width"`
+	Height       float64            `json:"height"`
+	Length       float64            `json:"length"`
+	Quantity     int                `json:"quantity"`
+	PaidAnnually bool               `json:"paid_annually"`
+	Type         RentalShippingType `json:"type"`
+	Status       RentalStatus       `json:"status"`
+	CreatedAt    time.Time          `json:"created_at"`
 }
 
 var (
