@@ -19,6 +19,7 @@ type RentalGetOutput struct {
 		Warehouse  Warehouse `json:"warehouse"`
 		Address    Address   `json:"address"`
 		Categories []string  `json:"categories"`
+		Room       Room      `json:"room"`
 	} `json:"relationships"`
 }
 
@@ -26,9 +27,11 @@ func (b *backend) RentalGet(ctx context.Context, userID, rentalID int64) (Rental
 	query := `
 	SELECT
 		r.*,
-		w.*
+		w.*,
+		rm.*
 	FROM rentals r
 	LEFT JOIN warehouses_list w ON w.w_id = r.warehouse_id
+	LEFT JOIN rooms rm ON rm.id = r.room_id
 	WHERE r.id = $1`
 
 	var rental RentalGetOutput
@@ -68,6 +71,14 @@ func (b *backend) RentalGet(ctx context.Context, userID, rentalID int64) (Rental
 		&rental.Relationships.Address.StreetName,
 		&rental.Relationships.Address.ZipCode,
 		&rental.Relationships.Categories,
+		&rental.Relationships.Room.ID,
+		&rental.Relationships.Room.WarehouseID,
+		&rental.Relationships.Room.ImageURL,
+		&rental.Relationships.Room.Name,
+		&rental.Relationships.Room.Width,
+		&rental.Relationships.Room.Height,
+		&rental.Relationships.Room.Length,
+		&rental.Relationships.Room.Price,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
