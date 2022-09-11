@@ -81,14 +81,14 @@ func (h *handler) RentalCreate(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
-	if len(form.File["images"]) > maxImageUploads {
+	if len(form.File["images[]"]) > maxImageUploads {
 		return fiber.NewError(fiber.StatusBadRequest,
 			fmt.Sprintf("Maximum number of images is %d", maxImageUploads))
 	}
 
-	images := make([]backend.RentalCreateMediaInput, len(form.File["images"]))
+	images := make([]backend.RentalCreateMediaInput, len(form.File["images[]"]))
 
-	for idx, image := range form.File["images"] {
+	for idx, image := range form.File["images[]"] {
 		file, err := image.Open()
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
