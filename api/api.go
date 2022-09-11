@@ -29,8 +29,14 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowMethods: strings.Join([]string{fiber.MethodGet, fiber.MethodPost, fiber.MethodHead}, ","),
-		AllowHeaders: fiber.HeaderAuthorization,
+		AllowMethods: strings.Join([]string{
+			fiber.MethodGet,
+			fiber.MethodPost,
+			fiber.MethodPatch,
+			fiber.MethodDelete,
+			fiber.MethodOptions,
+			fiber.MethodHead}, ","),
+		AllowHeaders: strings.Join([]string{fiber.HeaderAuthorization, fiber.HeaderContentType}, ","),
 	}))
 
 	app.Use(helmet.New(helmet.Config{
