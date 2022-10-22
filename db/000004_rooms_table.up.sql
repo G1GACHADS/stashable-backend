@@ -63,7 +63,7 @@ SELECT
     a.city,
     a.street_name,
     a.zip_code,
-    array_agg(c.name)
+    array_agg(c.name) AS supported_categories
 FROM
     warehouses w
     LEFT JOIN addresses AS a ON w.address_id = a.id
