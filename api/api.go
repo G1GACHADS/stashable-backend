@@ -83,15 +83,19 @@ func NewServer(b backend.Backend, cfg *config.Config) *fiber.App {
 
 	app.Patch("/rent/:id/pay",
 		middleware.Authenticated,
-		h.CreateRentalUpdateStatus(backend.RentalStatusPaid))
+		h.CreateRentalUpdateStatus(backend.RentalStatusPaid.Int()))
+
+	app.Patch("/rent/:id/unpay",
+		middleware.Authenticated,
+		h.CreateRentalUpdateStatus(backend.RentalStatusUnpaid.Int()))
 
 	app.Patch("/rent/:id/cancel",
 		middleware.Authenticated,
-		h.CreateRentalUpdateStatus(backend.RentalStatusCancelled))
+		h.CreateRentalUpdateStatus(backend.RentalStatusCancelled.Int()))
 
 	app.Patch("/rent/:id/return",
 		middleware.Authenticated,
-		h.CreateRentalUpdateStatus(backend.RentalStatusReturned))
+		h.CreateRentalUpdateStatus(backend.RentalStatusReturned.Int()))
 
 	return app
 }

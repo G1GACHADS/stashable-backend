@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/G1GACHADS/stashable-backend/backend"
+	"github.com/G1GACHADS/stashable-backend/core/logger"
 	"github.com/gofiber/fiber/v2"
 )
 
 // CreateRentalUpdateStatus to create support for multiple handlers for different rental status updates
-func (h *handler) CreateRentalUpdateStatus(status backend.RentalStatus) fiber.Handler {
+func (h *handler) CreateRentalUpdateStatus(status int) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		rentalID, err := c.ParamsInt("id")
 		if err != nil {
@@ -23,6 +24,7 @@ func (h *handler) CreateRentalUpdateStatus(status backend.RentalStatus) fiber.Ha
 		case errors.Is(err, backend.ErrRentalDoesNotBelongToUser):
 			return fiber.NewError(fiber.StatusForbidden, err.Error())
 		case err != nil:
+			logger.M.Errorf("Couldn't update rental status: %v", err)
 			return fiber.NewError(fiber.StatusInternalServerError, "There was a problem on our side")
 		}
 

@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func (b *backend) RentalUpdateStatus(ctx context.Context, rentalID, userID int64, status RentalStatus) error {
+func (b *backend) RentalUpdateStatus(ctx context.Context, rentalID, userID int64, status int) error {
 	var dbUserID int64
 	err := b.clients.DB.QueryRow(ctx, "SELECT user_id FROM rentals WHERE id = $1", rentalID).Scan(&dbUserID)
 	if err != nil {
@@ -22,7 +22,7 @@ func (b *backend) RentalUpdateStatus(ctx context.Context, rentalID, userID int64
 		return ErrRentalDoesNotBelongToUser
 	}
 
-	_, err = b.clients.DB.Exec(ctx, "UPDATE rentals SET status = $1 WHERE id = $2", status, rentalID)
+	_, err = b.clients.DB.Exec(ctx, "UPDATE rentals SET rental_status_id = $1 WHERE id = $2", status, rentalID)
 	if err != nil {
 		return err
 	}
