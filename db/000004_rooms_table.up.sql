@@ -39,9 +39,9 @@ CREATE TRIGGER add_warehouse_rooms_count
     AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON rooms
     FOR EACH STATEMENT
     EXECUTE PROCEDURE add_warehouse_rooms_count ();
--- Re-create materialized view
-DROP MATERIALIZED VIEW IF EXISTS warehouses_list;
-CREATE MATERIALIZED VIEW warehouses_list AS
+-- Re-create view
+DROP VIEW IF EXISTS warehouses_list;
+CREATE VIEW warehouses_list AS
 SELECT
     (
         SELECT

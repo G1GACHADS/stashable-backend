@@ -24,6 +24,12 @@ db-migrate:
 db-migrate-down:
 	./hack/db/migrate_db_down.sh
 
+db-reset:
+	docker stop stashable-backend-db-1
+	docker rm stashable-backend-db-1
+	docker volume rm stashable-backend_postgres_data
+	docker-compose up -d
+
 db-refresh: db-migrate-down db-migrate populate ## runs db refresh script
 
 docker-clean: ## Cleans all

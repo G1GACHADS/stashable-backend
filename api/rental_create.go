@@ -20,17 +20,17 @@ var supportedImageTypes = []string{
 }
 
 type RentalCreateParams struct {
-	Name         string                     `form:"name"`
-	Description  string                     `form:"description"`
-	Weight       float64                    `form:"weight"`
-	Width        float64                    `form:"width"`
-	Height       float64                    `form:"height"`
-	Length       float64                    `form:"length"`
-	Quantity     int                        `form:"quantity"`
-	PaidAnnually bool                       `form:"paid_annually"`
-	ShippingType backend.RentalShippingType `form:"shipping_type"`
-	CategoryID   int64                      `form:"category_id"`
-	RoomID       int64                      `form:"room_id"`
+	Name         string  `form:"name"`
+	Description  string  `form:"description"`
+	Weight       float64 `form:"weight"`
+	Width        float64 `form:"width"`
+	Height       float64 `form:"height"`
+	Length       float64 `form:"length"`
+	Quantity     int     `form:"quantity"`
+	PaidAnnually bool    `form:"paid_annually"`
+	ShippingType int     `form:"shipping_type"`
+	CategoryID   int64   `form:"category_id"`
+	RoomID       int64   `form:"room_id"`
 }
 
 func (p RentalCreateParams) Validate() error {
@@ -49,10 +49,16 @@ func (p RentalCreateParams) Validate() error {
 		return err
 	}
 
-	if !slices.Contains([]backend.RentalShippingType{
-		backend.RentalSelfServiceShipping,
-		backend.RentalDeliveryShipping}, p.ShippingType) {
-		return errors.New("invalid rental type (valid => 'self-storage' or 'disposal')")
+	validRentalShippingTypes := []int{
+		backend.RentalPickUpTruckShipping.Int(),
+		backend.RentalPickUpBoxShipping.Int(),
+		backend.RentalVanShipping.Int(),
+		backend.RentalTruckShipping.Int(),
+		backend.RentalSelfServiceShipping.Int(),
+	}
+
+	if !slices.Contains(validRentalShippingTypes, p.ShippingType) {
+		return errors.New("invalid rental type [1 (pick-up-truck), 2 (pick-up-box), 3 (van), 4 (truck), 5 (self-service)]")
 	}
 
 	return nil

@@ -51,9 +51,30 @@ type Room struct {
 type RentalShippingType string
 
 const (
+	RentalPickUpTruckShipping RentalShippingType = "pick-up-truck"
+	RentalPickUpBoxShipping   RentalShippingType = "pick-up-box"
+	RentalVanShipping         RentalShippingType = "van"
+	RentalTruckShipping       RentalShippingType = "truck"
 	RentalSelfServiceShipping RentalShippingType = "self-service"
-	RentalDeliveryShipping    RentalShippingType = "delivery"
 )
+
+func (rst RentalShippingType) Int() int {
+	switch rst {
+	case RentalPickUpTruckShipping:
+		return 1
+	case RentalPickUpBoxShipping:
+		return 2
+	case RentalVanShipping:
+		return 3
+	case RentalTruckShipping:
+		return 4
+	case RentalSelfServiceShipping:
+		return 5
+	default:
+		return 0
+
+	}
+}
 
 type RentalStatus string
 
@@ -64,24 +85,41 @@ const (
 	RentalStatusReturned  RentalStatus = "returned"
 )
 
+func (rs RentalStatus) Int() int {
+	switch rs {
+	case RentalStatusUnpaid:
+		return 1
+	case RentalStatusPaid:
+		return 2
+	case RentalStatusCancelled:
+		return 3
+	case RentalStatusReturned:
+		return 4
+	default:
+		return 0
+	}
+}
+
 type Rental struct {
-	ID           int64              `json:"id"`
-	UserID       int64              `json:"user_id"`
-	WarehouseID  int64              `json:"warehouse_id"`
-	RoomID       int64              `json:"room_id"`
-	CategoryID   int64              `json:"category_id"`
-	ImageURLs    []string           `json:"image_urls"`
-	Name         string             `json:"name"`
-	Description  string             `json:"description"`
-	Weight       float64            `json:"weight"`
-	Width        float64            `json:"width"`
-	Height       float64            `json:"height"`
-	Length       float64            `json:"length"`
-	Quantity     int                `json:"quantity"`
-	PaidAnnually bool               `json:"paid_annually"`
-	Type         RentalShippingType `json:"type"`
-	Status       RentalStatus       `json:"status"`
-	CreatedAt    time.Time          `json:"created_at"`
+	ID             int64              `json:"id"`
+	UserID         int64              `json:"user_id"`
+	WarehouseID    int64              `json:"warehouse_id"`
+	RoomID         int64              `json:"room_id"`
+	CategoryID     int64              `json:"category_id"`
+	ShippingTypeID int                `json:"shipping_type_id"`
+	StatusID       int                `json:"status_id"`
+	ShippingType   RentalShippingType `json:"shipping_type"`
+	Status         RentalStatus       `json:"status"`
+	ImageURLs      []string           `json:"image_urls"`
+	Name           string             `json:"name"`
+	Description    string             `json:"description"`
+	Weight         float64            `json:"weight"`
+	Width          float64            `json:"width"`
+	Height         float64            `json:"height"`
+	Length         float64            `json:"length"`
+	Quantity       int                `json:"quantity"`
+	PaidAnnually   bool               `json:"paid_annually"`
+	CreatedAt      time.Time          `json:"created_at"`
 }
 
 var (

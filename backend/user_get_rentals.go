@@ -28,8 +28,12 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 	query := `
 	SELECT
 		r.*,
+		st.name,
+		rs.name,
 		w.*
 	FROM rentals r
+	LEFT JOIN shipping_types st ON st.id = r.shipping_type_id
+	LEFT JOIN rental_statuses rs ON rs.id = r.rental_status_id
 	LEFT JOIN warehouses_list w ON w.w_id = r.warehouse_id
 	WHERE r.user_id = $1`
 
@@ -48,6 +52,8 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 			&rental.Attributes.UserID,
 			&rental.Attributes.WarehouseID,
 			&rental.Attributes.CategoryID,
+			&rental.Attributes.ShippingTypeID,
+			&rental.Attributes.StatusID,
 			&rental.Attributes.ImageURLs,
 			&rental.Attributes.Name,
 			&rental.Attributes.Description,
@@ -57,10 +63,10 @@ func (b *backend) UserGetRentals(ctx context.Context, userID int64) (UserGetRent
 			&rental.Attributes.Length,
 			&rental.Attributes.Quantity,
 			&rental.Attributes.PaidAnnually,
-			&rental.Attributes.Type,
-			&rental.Attributes.Status,
 			&rental.Attributes.CreatedAt,
 			&rental.Attributes.RoomID,
+			&rental.Attributes.ShippingType,
+			&rental.Attributes.Status,
 			nil, // warehouse count
 			&rental.Relationships.Warehouse.ID,
 			&rental.Relationships.Warehouse.AddressID,
